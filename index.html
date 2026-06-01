@@ -22,7 +22,6 @@
     --yellow-dim: #cc9a20;
     --yellow-glow: rgba(255,200,50,0.12);
     --blue: #2090ff;
-    --blue-dim: #1060cc;
     --cyan: #00d4ff;
     --text: #c8d8e8;
     --text-dim: #6080a0;
@@ -32,9 +31,7 @@
     --display: 'Orbitron', sans-serif;
     --body: 'Rajdhani', sans-serif;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     background: var(--bg);
     color: var(--text);
@@ -46,263 +43,142 @@
       repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.01) 40px, rgba(255,255,255,0.01) 41px),
       repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.01) 40px, rgba(255,255,255,0.01) 41px);
   }
-
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 24px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(13,17,23,0.95);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .logo {
-    font-family: var(--display);
-    font-size: 18px;
-    font-weight: 900;
-    color: var(--green);
-    letter-spacing: 4px;
-    text-shadow: 0 0 20px var(--green);
-  }
-
-  .logo-sub {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-  }
-
-  .timestamp {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--cyan);
-    letter-spacing: 1px;
-  }
-
-  .live-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,64,96,0.1);
-    border: 1px solid rgba(255,64,96,0.3);
-    padding: 4px 10px;
-    border-radius: 2px;
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--red);
-    letter-spacing: 2px;
-  }
-
-  .live-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--red);
-    animation: pulse 1s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-  }
-
-  .dashboard {
-    display: grid;
-    grid-template-columns: 280px 1fr 1fr;
-    grid-template-rows: auto auto auto;
-    gap: 1px;
-    background: var(--border);
-    min-height: calc(100vh - 57px);
-  }
-
-  .panel {
-    background: var(--bg2);
-    padding: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .panel::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    opacity: 0.3;
-  }
-
-  .panel-title {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .panel-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border2);
-  }
-
-  .state-circle {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid currentColor;
-  }
-
-  .state-circle.yellow { color: var(--yellow); box-shadow: 0 0 30px var(--yellow-glow), inset 0 0 30px var(--yellow-glow); background: radial-gradient(circle, rgba(255,200,50,0.08) 0%, transparent 70%); }
-  .state-circle.green  { color: var(--green);  box-shadow: 0 0 30px var(--green-glow),  inset 0 0 30px var(--green-glow);  background: radial-gradient(circle, rgba(0,229,160,0.08) 0%, transparent 70%); }
-  .state-circle.red    { color: var(--red);    box-shadow: 0 0 30px var(--red-glow),    inset 0 0 30px var(--red-glow);    background: radial-gradient(circle, rgba(255,64,96,0.08) 0%, transparent 70%); }
-
-  .state-label { font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: 1px; text-align: center; line-height: 1.3; }
-  .state-conf  { font-family: var(--mono); font-size: 22px; font-weight: 700; margin-top: 4px; }
-
-  .confidence-bar-wrap { margin: 12px 0; }
-  .conf-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-bottom: 5px; }
-  .conf-bar { height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; }
-  .conf-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
-  .conf-bar-fill.yellow { background: linear-gradient(90deg, var(--yellow-dim), var(--yellow)); }
-  .conf-bar-fill.green  { background: linear-gradient(90deg, var(--green-dim), var(--green)); }
-
-  .prob-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin: 14px 0; }
-  .prob-item { background: var(--bg3); border: 1px solid var(--border2); padding: 8px 6px; text-align: center; border-radius: 2px; }
-  .prob-dir  { font-family: var(--mono); font-size: 8px; color: var(--text-dim); letter-spacing: 1px; }
-  .prob-val  { font-family: var(--display); font-size: 16px; font-weight: 700; margin-top: 2px; }
-  .prob-val.long    { color: var(--green); }
-  .prob-val.neutral { color: var(--yellow); }
-  .prob-val.short   { color: var(--red); }
-
-  .instruments-panel { grid-column: 2 / 4; grid-row: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); padding: 0; }
-
-  .instrument-card { background: var(--bg2); padding: 16px 20px; position: relative; overflow: hidden; }
-  .instrument-card::after { content: ''; position: absolute; top: 0; bottom: 0; width: 3px; left: 0; }
-  .instrument-card.mnq::after { background: linear-gradient(180deg, var(--blue), var(--cyan)); }
-  .instrument-card.mcl::after { background: linear-gradient(180deg, var(--yellow), var(--red)); }
-
-  .inst-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
-  .inst-symbol { font-family: var(--display); font-size: 22px; font-weight: 900; letter-spacing: 2px; }
-  .inst-symbol.mnq { color: var(--cyan); }
-  .inst-symbol.mcl { color: var(--yellow); }
-
-  .price-val    { font-family: var(--mono); font-size: 20px; color: var(--text-bright); letter-spacing: 1px; }
-  .price-change { font-family: var(--mono); font-size: 11px; margin-top: 2px; }
-  .price-change.up { color: var(--green); }
-  .price-change.dn { color: var(--red); }
-
-  .inst-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
-  .stat-item { background: var(--bg3); padding: 7px 8px; border-radius: 2px; border: 1px solid var(--border); }
-  .stat-k { font-family: var(--mono); font-size: 8px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
-  .stat-v { font-family: var(--mono); font-size: 13px; color: var(--text-bright); margin-top: 2px; }
-  .stat-v.bull  { color: var(--green); }
-  .stat-v.bear  { color: var(--red); }
-  .stat-v.mixed { color: var(--yellow); }
-  .stat-v.warn  { color: var(--yellow); }
-
-  .score-bar   { display: flex; gap: 4px; margin-top: 10px; align-items: center; }
-  .score-label { font-family: var(--mono); font-size: 9px; color: var(--text-dim); width: 70px; letter-spacing: 1px; }
-  .score-pips  { display: flex; gap: 3px; }
-  .pip { width: 14px; height: 5px; border-radius: 1px; background: var(--border2); }
-  .pip.long-active  { background: var(--green); box-shadow: 0 0 4px var(--green); }
-  .pip.short-active { background: var(--red);   box-shadow: 0 0 4px var(--red); }
-
-  .setup-card { background: var(--bg3); border: 1px solid var(--border2); border-radius: 2px; margin-bottom: 10px; overflow: hidden; transition: border-color 0.2s; }
-  .setup-card:hover { border-color: var(--accent); }
-  .setup-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--border); cursor: pointer; }
-  .setup-title { display: flex; align-items: center; gap: 10px; }
-  .setup-num  { font-family: var(--display); font-size: 10px; color: var(--text-dim); font-weight: 700; }
-  .setup-name { font-family: var(--body); font-size: 14px; font-weight: 700; color: var(--text-bright); letter-spacing: 0.5px; }
-  .setup-badges { display: flex; gap: 6px; align-items: center; }
-
-  .badge { font-family: var(--mono); font-size: 9px; padding: 3px 8px; border-radius: 1px; letter-spacing: 1px; font-weight: 700; }
-  .badge.green  { background: rgba(0,229,160,0.15);  color: var(--green);  border: 1px solid rgba(0,229,160,0.3); }
-  .badge.yellow { background: rgba(255,200,50,0.12); color: var(--yellow); border: 1px solid rgba(255,200,50,0.3); }
-  .badge.red    { background: rgba(255,64,96,0.1);   color: var(--red);    border: 1px solid rgba(255,64,96,0.3); }
-  .badge.blue   { background: rgba(32,144,255,0.12); color: var(--cyan);   border: 1px solid rgba(32,144,255,0.3); }
-
-  .setup-body { padding: 12px 14px; display: none; }
-  .setup-card.open .setup-body { display: block; }
-
-  .setup-thesis { font-size: 12px; color: var(--text); line-height: 1.6; margin-bottom: 12px; border-left: 2px solid var(--border2); padding-left: 10px; }
-  .setup-levels { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-
-  .level-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg); padding: 6px 10px; border-radius: 2px; border: 1px solid var(--border); }
-  .level-k { font-family: var(--mono); font-size: 9px; color: var(--text-dim); letter-spacing: 1px; }
-  .level-v { font-family: var(--mono); font-size: 12px; color: var(--text-bright); font-weight: 700; }
-  .level-v.entry { color: var(--cyan); }
-  .level-v.stop  { color: var(--red); }
-  .level-v.t1    { color: var(--green); }
-  .level-v.t2    { color: var(--green); }
-  .level-v.rr    { color: var(--yellow); }
-
-  .setup-invalidation { margin-top: 10px; font-family: var(--mono); font-size: 10px; color: var(--red); background: rgba(255,64,96,0.06); border: 1px solid rgba(255,64,96,0.2); padding: 6px 10px; border-radius: 2px; }
-
-  .ks-grid { display: flex; flex-direction: column; gap: 6px; }
-  .ks-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg3); border-radius: 2px; border: 1px solid var(--border); border-left: 3px solid currentColor; }
-  .ks-item.clear  { color: var(--green); }
-  .ks-item.warn   { color: var(--yellow); }
-  .ks-item.danger { color: var(--red); }
-  .ks-icon    { font-size: 14px; flex-shrink: 0; }
-  .ks-content { flex: 1; }
-  .ks-name    { font-family: var(--body); font-size: 12px; font-weight: 700; color: var(--text-bright); }
-  .ks-val     { font-family: var(--mono); font-size: 10px; color: inherit; margin-top: 1px; }
-  .ks-status  { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: inherit; flex-shrink: 0; }
-
-  .catalyst-list { display: flex; flex-direction: column; gap: 6px; }
-  .catalyst-item { display: grid; grid-template-columns: 60px 1fr auto; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg3); border-radius: 2px; border: 1px solid var(--border); }
-  .catalyst-item.hot { border-color: rgba(255,64,96,0.3); background: rgba(255,64,96,0.05); }
-  .catalyst-time   { font-family: var(--mono); font-size: 11px; color: var(--cyan); font-weight: 700; letter-spacing: 1px; }
-  .catalyst-name   { font-family: var(--body); font-size: 12px; font-weight: 600; color: var(--text-bright); }
-  .catalyst-impact { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; padding: 2px 6px; border-radius: 1px; }
-  .catalyst-impact.high { color: var(--red);      background: rgba(255,64,96,0.1); }
-  .catalyst-impact.med  { color: var(--yellow);   background: rgba(255,200,50,0.1); }
-  .catalyst-impact.low  { color: var(--text-dim); background: var(--border2); }
-
-  .macro-grid { display: flex; flex-direction: column; gap: 8px; }
-  .macro-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 2px; }
-  .macro-name  { font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
-  .macro-val   { font-family: var(--mono); font-size: 14px; font-weight: 700; }
-  .macro-val.bull    { color: var(--green); }
-  .macro-val.bear    { color: var(--red); }
-  .macro-val.neutral { color: var(--text); }
-  .macro-val.warn    { color: var(--yellow); }
-  .macro-trend { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
-
-  .countdown-box   { background: rgba(255,64,96,0.06); border: 1px solid rgba(255,64,96,0.25); border-radius: 2px; padding: 12px; text-align: center; margin-top: 12px; }
-  .countdown-label { font-family: var(--mono); font-size: 9px; color: var(--red); letter-spacing: 2px; margin-bottom: 6px; }
-  .countdown-time  { font-family: var(--display); font-size: 28px; font-weight: 700; color: var(--red); letter-spacing: 4px; text-shadow: 0 0 20px rgba(255,64,96,0.5); }
-  .countdown-event { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 4px; letter-spacing: 1px; }
-
-  @keyframes scan {
-    0%   { transform: translateY(-100%); }
-    100% { transform: translateY(100vh); }
-  }
-  .scanline { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(0,229,160,0.3), transparent); animation: scan 8s linear infinite; pointer-events: none; z-index: 999; }
-
-  .setups-panel { max-height: 600px; }
-  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border2), transparent); margin: 12px 0; }
-  .tag { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; padding: 2px 6px; border-radius: 1px; background: var(--border2); color: var(--text-dim); }
-  .chevron { color: var(--text-dim); font-size: 12px; transition: transform 0.2s; }
-  .setup-card.open .chevron { transform: rotate(180deg); }
+  .header { display:flex; align-items:center; justify-content:space-between; padding:14px 24px; border-bottom:1px solid var(--border); background:rgba(13,17,23,0.95); backdrop-filter:blur(10px); position:sticky; top:0; z-index:100; }
+  .logo { font-family:var(--display); font-size:18px; font-weight:900; color:var(--green); letter-spacing:4px; text-shadow:0 0 20px var(--green); }
+  .logo-sub { font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; }
+  .timestamp { font-family:var(--mono); font-size:12px; color:var(--cyan); letter-spacing:1px; }
+  .live-badge { display:flex; align-items:center; gap:6px; background:rgba(255,64,96,0.1); border:1px solid rgba(255,64,96,0.3); padding:4px 10px; border-radius:2px; font-family:var(--mono); font-size:10px; color:var(--red); letter-spacing:2px; }
+  .live-dot { width:6px; height:6px; border-radius:50%; background:var(--red); animation:pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+  .dashboard { display:grid; grid-template-columns:280px 1fr 1fr; grid-template-rows:auto auto auto; gap:1px; background:var(--border); min-height:calc(100vh - 57px); }
+  .panel { background:var(--bg2); padding:16px; position:relative; overflow:hidden; }
+  .panel::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:0.3; }
+  .panel-title { font-family:var(--mono); font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .panel-title::after { content:''; flex:1; height:1px; background:var(--border2); }
+  .state-circle { width:110px; height:110px; border-radius:50%; margin:0 auto 16px; display:flex; flex-direction:column; align-items:center; justify-content:center; border:2px solid currentColor; }
+  .state-circle.yellow { color:var(--yellow); box-shadow:0 0 30px var(--yellow-glow),inset 0 0 30px var(--yellow-glow); background:radial-gradient(circle,rgba(255,200,50,0.08) 0%,transparent 70%); }
+  .state-circle.green  { color:var(--green);  box-shadow:0 0 30px var(--green-glow),inset 0 0 30px var(--green-glow);   background:radial-gradient(circle,rgba(0,229,160,0.08) 0%,transparent 70%); }
+  .state-circle.red    { color:var(--red);    box-shadow:0 0 30px var(--red-glow),inset 0 0 30px var(--red-glow);       background:radial-gradient(circle,rgba(255,64,96,0.08) 0%,transparent 70%); }
+  .state-label { font-family:var(--display); font-size:8px; font-weight:700; letter-spacing:0.5px; text-align:center; line-height:1.4; }
+  .state-conf  { font-family:var(--mono); font-size:22px; font-weight:700; margin-top:4px; }
+  .confidence-bar-wrap { margin:12px 0; }
+  .conf-label { display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px; color:var(--text-dim); margin-bottom:5px; }
+  .conf-bar   { height:4px; background:var(--border2); border-radius:2px; overflow:hidden; }
+  .conf-bar-fill { height:100%; border-radius:2px; transition:width 1s ease; }
+  .conf-bar-fill.yellow { background:linear-gradient(90deg,var(--yellow-dim),var(--yellow)); }
+  .conf-bar-fill.green  { background:linear-gradient(90deg,var(--green-dim),var(--green)); }
+  .conf-bar-fill.red    { background:linear-gradient(90deg,var(--red-dim),var(--red)); }
+  .prob-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin:14px 0; }
+  .prob-item { background:var(--bg3); border:1px solid var(--border2); padding:8px 6px; text-align:center; border-radius:2px; }
+  .prob-dir  { font-family:var(--mono); font-size:8px; color:var(--text-dim); letter-spacing:1px; }
+  .prob-val  { font-family:var(--display); font-size:16px; font-weight:700; margin-top:2px; }
+  .prob-val.long    { color:var(--green); }
+  .prob-val.neutral { color:var(--yellow); }
+  .prob-val.short   { color:var(--red); }
+  .instruments-panel { grid-column:2/4; grid-row:1; display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); padding:0; }
+  .instrument-card { background:var(--bg2); padding:16px 20px; position:relative; overflow:hidden; }
+  .instrument-card::after { content:''; position:absolute; top:0; bottom:0; width:3px; left:0; }
+  .instrument-card.mnq::after { background:linear-gradient(180deg,var(--blue),var(--cyan)); }
+  .instrument-card.mcl::after { background:linear-gradient(180deg,var(--yellow),var(--red)); }
+  .inst-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; }
+  .inst-symbol { font-family:var(--display); font-size:22px; font-weight:900; letter-spacing:2px; }
+  .inst-symbol.mnq { color:var(--cyan); }
+  .inst-symbol.mcl { color:var(--yellow); }
+  .price-val    { font-family:var(--mono); font-size:20px; color:var(--text-bright); letter-spacing:1px; }
+  .price-change { font-family:var(--mono); font-size:11px; margin-top:2px; }
+  .price-change.up { color:var(--green); }
+  .price-change.dn { color:var(--red); }
+  .inst-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:10px 0; }
+  .stat-item { background:var(--bg3); padding:7px 8px; border-radius:2px; border:1px solid var(--border); }
+  .stat-k { font-family:var(--mono); font-size:8px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase; }
+  .stat-v { font-family:var(--mono); font-size:13px; color:var(--text-bright); margin-top:2px; }
+  .stat-v.bull  { color:var(--green); }
+  .stat-v.bear  { color:var(--red); }
+  .stat-v.mixed { color:var(--yellow); }
+  .stat-v.warn  { color:var(--yellow); }
+  .stat-v.oversold { color:var(--red); font-weight:700; }
+  .score-bar   { display:flex; gap:4px; margin-top:10px; align-items:center; }
+  .score-label { font-family:var(--mono); font-size:9px; color:var(--text-dim); width:70px; letter-spacing:1px; }
+  .score-pips  { display:flex; gap:3px; }
+  .pip { width:14px; height:5px; border-radius:1px; background:var(--border2); }
+  .pip.long-active  { background:var(--green); box-shadow:0 0 4px var(--green); }
+  .pip.short-active { background:var(--red);   box-shadow:0 0 4px var(--red); }
+  .setup-card { background:var(--bg3); border:1px solid var(--border2); border-radius:2px; margin-bottom:10px; overflow:hidden; transition:border-color 0.2s; }
+  .setup-card:hover { border-color:var(--accent); }
+  .setup-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .setup-title { display:flex; align-items:center; gap:10px; }
+  .setup-num  { font-family:var(--display); font-size:10px; color:var(--text-dim); font-weight:700; }
+  .setup-name { font-family:var(--body); font-size:14px; font-weight:700; color:var(--text-bright); letter-spacing:0.5px; }
+  .setup-badges { display:flex; gap:6px; align-items:center; }
+  .badge { font-family:var(--mono); font-size:9px; padding:3px 8px; border-radius:1px; letter-spacing:1px; font-weight:700; }
+  .badge.green  { background:rgba(0,229,160,0.15);  color:var(--green);  border:1px solid rgba(0,229,160,0.3); }
+  .badge.yellow { background:rgba(255,200,50,0.12); color:var(--yellow); border:1px solid rgba(255,200,50,0.3); }
+  .badge.red    { background:rgba(255,64,96,0.1);   color:var(--red);    border:1px solid rgba(255,64,96,0.3); }
+  .badge.blue   { background:rgba(32,144,255,0.12); color:var(--cyan);   border:1px solid rgba(32,144,255,0.3); }
+  .badge.grey   { background:rgba(96,128,160,0.12); color:var(--text-dim); border:1px solid rgba(96,128,160,0.3); }
+  .setup-body { padding:12px 14px; display:none; }
+  .setup-card.open .setup-body { display:block; }
+  .setup-thesis { font-size:12px; color:var(--text); line-height:1.6; margin-bottom:12px; border-left:2px solid var(--border2); padding-left:10px; }
+  .setup-levels { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .level-item { display:flex; justify-content:space-between; align-items:center; background:var(--bg); padding:6px 10px; border-radius:2px; border:1px solid var(--border); }
+  .level-k { font-family:var(--mono); font-size:9px; color:var(--text-dim); letter-spacing:1px; }
+  .level-v { font-family:var(--mono); font-size:12px; color:var(--text-bright); font-weight:700; }
+  .level-v.entry { color:var(--cyan); }
+  .level-v.stop  { color:var(--red); }
+  .level-v.t1    { color:var(--green); }
+  .level-v.t2    { color:var(--green); }
+  .level-v.rr    { color:var(--yellow); }
+  .setup-invalidation { margin-top:10px; font-family:var(--mono); font-size:10px; color:var(--red); background:rgba(255,64,96,0.06); border:1px solid rgba(255,64,96,0.2); padding:6px 10px; border-radius:2px; }
+  .ks-grid { display:flex; flex-direction:column; gap:6px; }
+  .ks-item { display:flex; align-items:center; gap:10px; padding:8px 10px; background:var(--bg3); border-radius:2px; border:1px solid var(--border); border-left:3px solid currentColor; }
+  .ks-item.clear  { color:var(--green); }
+  .ks-item.warn   { color:var(--yellow); }
+  .ks-item.danger { color:var(--red); }
+  .ks-icon    { font-size:14px; flex-shrink:0; }
+  .ks-content { flex:1; }
+  .ks-name    { font-family:var(--body); font-size:12px; font-weight:700; color:var(--text-bright); }
+  .ks-val     { font-family:var(--mono); font-size:10px; color:inherit; margin-top:1px; }
+  .ks-status  { font-family:var(--mono); font-size:9px; letter-spacing:1px; color:inherit; flex-shrink:0; }
+  .catalyst-list { display:flex; flex-direction:column; gap:6px; }
+  .catalyst-item { display:grid; grid-template-columns:60px 1fr auto; align-items:center; gap:10px; padding:8px 10px; background:var(--bg3); border-radius:2px; border:1px solid var(--border); }
+  .catalyst-item.hot { border-color:rgba(255,64,96,0.3); background:rgba(255,64,96,0.05); }
+  .catalyst-time   { font-family:var(--mono); font-size:11px; color:var(--cyan); font-weight:700; letter-spacing:1px; }
+  .catalyst-name   { font-family:var(--body); font-size:12px; font-weight:600; color:var(--text-bright); }
+  .catalyst-impact { font-family:var(--mono); font-size:9px; letter-spacing:1px; padding:2px 6px; border-radius:1px; }
+  .catalyst-impact.high   { color:var(--red);      background:rgba(255,64,96,0.1); }
+  .catalyst-impact.binary { color:var(--yellow);   background:rgba(255,200,50,0.15); border:1px solid rgba(255,200,50,0.3); font-weight:700; }
+  .catalyst-impact.med    { color:var(--yellow);   background:rgba(255,200,50,0.1); }
+  .catalyst-impact.low    { color:var(--text-dim); background:var(--border2); }
+  .macro-grid { display:flex; flex-direction:column; gap:8px; }
+  .macro-item { display:flex; justify-content:space-between; align-items:center; padding:7px 10px; background:var(--bg3); border:1px solid var(--border); border-radius:2px; }
+  .macro-name  { font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:1px; }
+  .macro-val   { font-family:var(--mono); font-size:14px; font-weight:700; }
+  .macro-val.bull    { color:var(--green); }
+  .macro-val.bear    { color:var(--red); }
+  .macro-val.neutral { color:var(--text); }
+  .macro-val.warn    { color:var(--yellow); }
+  .macro-val.priced  { color:var(--green); font-size:12px; }
+  .macro-trend { font-family:var(--mono); font-size:10px; color:var(--text-dim); }
+  .countdown-box   { background:rgba(255,64,96,0.06); border:1px solid rgba(255,64,96,0.25); border-radius:2px; padding:12px; text-align:center; margin-top:12px; }
+  .countdown-label { font-family:var(--mono); font-size:9px; color:var(--red); letter-spacing:2px; margin-bottom:6px; }
+  .countdown-time  { font-family:var(--display); font-size:28px; font-weight:700; color:var(--red); letter-spacing:4px; text-shadow:0 0 20px rgba(255,64,96,0.5); }
+  .countdown-event { font-family:var(--mono); font-size:10px; color:var(--text-dim); margin-top:4px; letter-spacing:1px; }
+  @keyframes scan { 0%{transform:translateY(-100%)} 100%{transform:translateY(100vh)} }
+  .scanline { position:fixed; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgba(0,229,160,0.3),transparent); animation:scan 8s linear infinite; pointer-events:none; z-index:999; }
+  .setups-panel { max-height:600px; overflow-y:auto; }
+  .divider { height:1px; background:linear-gradient(90deg,transparent,var(--border2),transparent); margin:12px 0; }
+  .tag { font-family:var(--mono); font-size:9px; letter-spacing:1px; padding:2px 6px; border-radius:1px; background:var(--border2); color:var(--text-dim); }
+  .chevron { color:var(--text-dim); font-size:12px; transition:transform 0.2s; }
+  .setup-card.open .chevron { transform:rotate(180deg); }
+  /* Trade result banner */
+  .result-banner { font-family:var(--mono); font-size:9px; padding:4px 10px; border-radius:1px; letter-spacing:1px; display:inline-flex; align-items:center; gap:5px; }
+  .result-banner.win { background:rgba(0,229,160,0.12); color:var(--green); border:1px solid rgba(0,229,160,0.3); }
 </style>
 </head>
 <body>
 <div class="scanline"></div>
 
+<!-- HEADER -->
 <div class="header">
   <div style="display:flex;align-items:center;gap:16px;">
     <div>
@@ -311,11 +187,12 @@
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:20px;">
-    <div class="timestamp" id="clock">MAY 26, 2026 &mdash; 08:55 ET</div>
+    <div class="timestamp" id="clock">JUN 1, 2026 &mdash; 07:23 ET</div>
     <div class="live-badge"><div class="live-dot"></div>LIVE</div>
   </div>
 </div>
 
+<!-- DASHBOARD -->
 <div class="dashboard">
 
   <!-- MARKOV STATE -->
@@ -324,39 +201,43 @@
 
     <div style="text-align:center;margin-bottom:6px;"><span class="tag">MNQ</span></div>
     <div class="state-circle yellow">
-      <div class="state-label">RANGE<br>DISTRIBUTION</div>
-      <div class="state-conf">0.63</div>
+      <div class="state-label">TREND<br>CORRECTION</div>
+      <div class="state-conf">0.62</div>
     </div>
     <div class="confidence-bar-wrap">
       <div class="conf-label"><span>CONFIDENCE</span><span style="color:var(--yellow)">YELLOW</span></div>
-      <div class="conf-bar"><div class="conf-bar-fill yellow" style="width:63%"></div></div>
+      <div class="conf-bar"><div class="conf-bar-fill yellow" style="width:62%"></div></div>
     </div>
     <div class="prob-grid">
-      <div class="prob-item"><div class="prob-dir">LONG</div><div class="prob-val long">45%</div></div>
-      <div class="prob-item"><div class="prob-dir">NEUT</div><div class="prob-val neutral">35%</div></div>
-      <div class="prob-item"><div class="prob-dir">SHORT</div><div class="prob-val short">20%</div></div>
+      <div class="prob-item"><div class="prob-dir">LONG</div><div class="prob-val long">48%</div></div>
+      <div class="prob-item"><div class="prob-dir">NEUT</div><div class="prob-val neutral">30%</div></div>
+      <div class="prob-item"><div class="prob-dir">SHORT</div><div class="prob-val short">22%</div></div>
     </div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);text-align:center;margin-bottom:4px;letter-spacing:1px;">LTF BEARISH &middot; HTF BULLISH &middot; RSI EXHAUSTED</div>
 
     <div class="divider"></div>
 
     <div style="text-align:center;margin-bottom:6px;"><span class="tag">MCL</span></div>
-    <div class="state-circle green" style="margin-bottom:12px;">
-      <div class="state-label">TREND<br>DOWN</div>
-      <div class="state-conf">0.71</div>
+    <div class="state-circle yellow" style="margin-bottom:12px;">
+      <div class="state-label">RANGE<br>NEUTRAL</div>
+      <div class="state-conf">0.57</div>
     </div>
     <div class="confidence-bar-wrap">
-      <div class="conf-label"><span>CONFIDENCE</span><span style="color:var(--green)">GREEN</span></div>
-      <div class="conf-bar"><div class="conf-bar-fill green" style="width:71%"></div></div>
+      <div class="conf-label"><span>CONFIDENCE</span><span style="color:var(--yellow)">YELLOW</span></div>
+      <div class="conf-bar"><div class="conf-bar-fill yellow" style="width:57%"></div></div>
     </div>
     <div class="prob-grid">
-      <div class="prob-item"><div class="prob-dir">LONG</div><div class="prob-val long">12%</div></div>
-      <div class="prob-item"><div class="prob-dir">NEUT</div><div class="prob-val neutral">21%</div></div>
-      <div class="prob-item"><div class="prob-dir">SHORT</div><div class="prob-val short">67%</div></div>
+      <div class="prob-item"><div class="prob-dir">LONG</div><div class="prob-val long">42%</div></div>
+      <div class="prob-item"><div class="prob-dir">NEUT</div><div class="prob-val neutral">35%</div></div>
+      <div class="prob-item"><div class="prob-dir">SHORT</div><div class="prob-val short">23%</div></div>
     </div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);text-align:center;letter-spacing:1px;">3/3 SPLIT &middot; OVX COLLAPSED &middot; NO EDGE</div>
   </div>
 
   <!-- INSTRUMENT CARDS -->
   <div class="instruments-panel">
+
+    <!-- MNQ -->
     <div class="instrument-card mnq">
       <div class="inst-header">
         <div>
@@ -364,38 +245,39 @@
           <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:2px;">MICRO NASDAQ JUN 2026</div>
         </div>
         <div style="text-align:right;">
-          <div class="price-val">29,920.00</div>
-          <div class="price-change up">&#9650; +4.25 (+0.01%)</div>
+          <div class="price-val">30,461.25</div>
+          <div class="price-change dn">&#9660; -9.00 (-0.03%)</div>
         </div>
       </div>
       <div class="inst-stats">
-        <div class="stat-item"><div class="stat-k">VWAP</div><div class="stat-v bull">ABOVE</div></div>
-        <div class="stat-item"><div class="stat-k">STRUCT</div><div class="stat-v bull">BULLISH</div></div>
+        <div class="stat-item"><div class="stat-k">VWAP</div><div class="stat-v bear">BELOW</div></div>
+        <div class="stat-item"><div class="stat-k">STRUCT</div><div class="stat-v bear">BEARISH</div></div>
         <div class="stat-item"><div class="stat-k">HTF 1H</div><div class="stat-v bull">BULLISH</div></div>
-        <div class="stat-item"><div class="stat-k">EMA</div><div class="stat-v bull">BULLISH</div></div>
-        <div class="stat-item"><div class="stat-k">RSI 5M</div><div class="stat-v warn">72.0</div></div>
-        <div class="stat-item"><div class="stat-k">RSI 15M</div><div class="stat-v warn">68.7</div></div>
-        <div class="stat-item"><div class="stat-k">ATR</div><div class="stat-v">16.71</div></div>
-        <div class="stat-item"><div class="stat-k">VOL RATIO</div><div class="stat-v warn">0.34x &#9888;</div></div>
+        <div class="stat-item"><div class="stat-k">EMA</div><div class="stat-v mixed">MIXED</div></div>
+        <div class="stat-item"><div class="stat-k">RSI 5M</div><div class="stat-v warn">38.1</div></div>
+        <div class="stat-item"><div class="stat-k">RSI 15M</div><div class="stat-v oversold">29.9 &#9660;</div></div>
+        <div class="stat-item"><div class="stat-k">ATR</div><div class="stat-v">27.36</div></div>
+        <div class="stat-item"><div class="stat-k">VOL RATIO</div><div class="stat-v">0.67x</div></div>
       </div>
       <div class="score-bar">
-        <div class="score-label">LONG 4/6</div>
-        <div class="score-pips"><div class="pip long-active"></div><div class="pip long-active"></div><div class="pip long-active"></div><div class="pip long-active"></div><div class="pip"></div><div class="pip"></div></div>
+        <div class="score-label">LONG 2/6</div>
+        <div class="score-pips"><div class="pip long-active"></div><div class="pip long-active"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
       </div>
       <div class="score-bar">
-        <div class="score-label">SHORT 0/6</div>
-        <div class="score-pips"><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
+        <div class="score-label">SHORT 4/6</div>
+        <div class="score-pips"><div class="pip short-active"></div><div class="pip short-active"></div><div class="pip short-active"></div><div class="pip short-active"></div><div class="pip"></div><div class="pip"></div></div>
       </div>
       <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-        <div class="stat-item"><div class="stat-k">PDH</div><div class="stat-v">29,747</div></div>
-        <div class="stat-item"><div class="stat-k">PDL</div><div class="stat-v">29,437</div></div>
-        <div class="stat-item"><div class="stat-k">WEAK HI</div><div class="stat-v warn">29,948</div></div>
+        <div class="stat-item"><div class="stat-k">PDH</div><div class="stat-v warn">30,536</div></div>
+        <div class="stat-item"><div class="stat-k">PDL</div><div class="stat-v">30,216</div></div>
+        <div class="stat-item"><div class="stat-k">VWAP</div><div class="stat-v">30,512</div></div>
       </div>
-      <div style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--yellow);background:rgba(255,200,50,0.08);border:1px solid rgba(255,200,50,0.2);padding:6px 10px;border-radius:2px;">
-        &#9888; RSI 72 + VOL 0.34x = OVERBOUGHT ON LOW VOLUME &mdash; DO NOT CHASE
+      <div style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--red);background:rgba(255,64,96,0.07);border:1px solid rgba(255,64,96,0.25);padding:6px 10px;border-radius:2px;">
+        &#9888; RSI 29.9 EXTREME OVERSOLD ON 15M &mdash; EXHAUSTION SIGNAL &mdash; DO NOT SHORT HERE
       </div>
     </div>
 
+    <!-- MCL -->
     <div class="instrument-card mcl">
       <div class="inst-header">
         <div>
@@ -403,97 +285,123 @@
           <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:2px;">MICRO CRUDE OIL JUL 2026</div>
         </div>
         <div style="text-align:right;">
-          <div class="price-val">92.57</div>
-          <div class="price-change dn">&#9660; -0.04 (-0.04%)</div>
+          <div class="price-val">90.42</div>
+          <div class="price-change dn">&#9660; -0.21 (-0.23%)</div>
         </div>
       </div>
       <div class="inst-stats">
-        <div class="stat-item"><div class="stat-k">VWAP</div><div class="stat-v bear">BELOW</div></div>
-        <div class="stat-item"><div class="stat-k">STRUCT</div><div class="stat-v bear">BEARISH</div></div>
-        <div class="stat-item"><div class="stat-k">HTF 1H</div><div class="stat-v bear">BEARISH</div></div>
-        <div class="stat-item"><div class="stat-k">EMA</div><div class="stat-v mixed">MIXED</div></div>
-        <div class="stat-item"><div class="stat-k">RSI 5M</div><div class="stat-v">48.8</div></div>
-        <div class="stat-item"><div class="stat-k">RSI 15M</div><div class="stat-v">52.5</div></div>
-        <div class="stat-item"><div class="stat-k">ATR</div><div class="stat-v">0.28</div></div>
-        <div class="stat-item"><div class="stat-k">VOL RATIO</div><div class="stat-v warn">0.36x</div></div>
+        <div class="stat-item"><div class="stat-k">VWAP</div><div class="stat-v bull">ABOVE</div></div>
+        <div class="stat-item"><div class="stat-k">STRUCT</div><div class="stat-v mixed">MIXED</div></div>
+        <div class="stat-item"><div class="stat-k">HTF 1H</div><div class="stat-v bull">BULLISH</div></div>
+        <div class="stat-item"><div class="stat-k">EMA</div><div class="stat-v bull">BULLISH</div></div>
+        <div class="stat-item"><div class="stat-k">RSI 5M</div><div class="stat-v warn">39.4</div></div>
+        <div class="stat-item"><div class="stat-k">RSI 15M</div><div class="stat-v">51.5</div></div>
+        <div class="stat-item"><div class="stat-k">ATR</div><div class="stat-v">0.35</div></div>
+        <div class="stat-item"><div class="stat-k">VOL RATIO</div><div class="stat-v">0.55x</div></div>
       </div>
       <div class="score-bar">
-        <div class="score-label">LONG 1/6</div>
-        <div class="score-pips"><div class="pip long-active"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
+        <div class="score-label">LONG 3/6</div>
+        <div class="score-pips"><div class="pip long-active"></div><div class="pip long-active"></div><div class="pip long-active"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
       </div>
       <div class="score-bar">
         <div class="score-label">SHORT 3/6</div>
         <div class="score-pips"><div class="pip short-active"></div><div class="pip short-active"></div><div class="pip short-active"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
       </div>
       <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-        <div class="stat-item"><div class="stat-k">OVX</div><div class="stat-v warn">75.97 &#8595;</div></div>
-        <div class="stat-item"><div class="stat-k">EQUIL</div><div class="stat-v">91.62</div></div>
-        <div class="stat-item"><div class="stat-k">PDL-PWL</div><div class="stat-v">94.69</div></div>
+        <div class="stat-item"><div class="stat-k">OVX</div><div class="stat-v priced">57.84 &#8595;&#8595;</div></div>
+        <div class="stat-item"><div class="stat-k">PDH</div><div class="stat-v bull">89.04</div></div>
+        <div class="stat-item"><div class="stat-k">PWH</div><div class="stat-v">94.69</div></div>
       </div>
       <div style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--green);background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);padding:6px 10px;border-radius:2px;">
-        &#10003; OVX PEAKED + ROLLING &mdash; WAR PREMIUM UNWIND CONFIRMED
+        &#10003; OVX 75.97 &rarr; 57.84 = WAR PREMIUM FULLY PRICED OUT &mdash; SHORT CLOSED
       </div>
     </div>
   </div>
 
   <!-- SETUPS -->
-  <div class="panel setups-panel" style="grid-column:2;grid-row:2/4;overflow-y:auto;">
+  <div class="panel setups-panel" style="grid-column:2;grid-row:2/4;">
     <div class="panel-title">ACTIVE SETUPS</div>
 
+    <!-- Setup A -->
     <div class="setup-card open" onclick="this.classList.toggle('open')">
       <div class="setup-header">
-        <div class="setup-title"><span class="setup-num">A</span><span class="setup-name">MCL SHORT &mdash; OVX Rollover Fade</span></div>
-        <div class="setup-badges"><span class="badge green">&#x1F7E2; GREEN</span><span class="badge blue">TOP CONV</span><span class="chevron">&#9660;</span></div>
+        <div class="setup-title"><span class="setup-num">A</span><span class="setup-name">MNQ LONG &mdash; ISM Oversold Bounce</span></div>
+        <div class="setup-badges">
+          <span class="badge yellow">&#x1F7E1; YELLOW</span>
+          <span class="badge blue">WAIT ISM</span>
+          <span class="chevron">&#9660;</span>
+        </div>
       </div>
       <div class="setup-body">
-        <div class="setup-thesis">OVX peaked at 78 and now rolling over from Premium. MCL confirmed bearish CHoCH on 5M. HTF 1H bearish. Retail trapped long above current price. War premium unwinding &mdash; strikes happened but peace viable = no sustained escalation bid. Equilibrium at 91.62 is the magnet.</div>
-        <div class="setup-levels">
-          <div class="level-item"><span class="level-k">ENTRY</span><span class="level-v entry">92.70&ndash;93.00</span></div>
-          <div class="level-item"><span class="level-k">STOP</span><span class="level-v stop">93.25</span></div>
-          <div class="level-item"><span class="level-k">TARGET 1</span><span class="level-v t1">92.12</span></div>
-          <div class="level-item"><span class="level-k">TARGET 2</span><span class="level-v t2">91.62</span></div>
-          <div class="level-item"><span class="level-k">R:R T1</span><span class="level-v rr">1.5:1</span></div>
-          <div class="level-item"><span class="level-k">R:R T2</span><span class="level-v rr">2.8:1</span></div>
+        <div class="setup-thesis">
+          RSI 15M at <strong style="color:var(--red)">29.9</strong> is the lowest reading in multiple sessions &mdash; extreme oversold exhaustion. HTF 1H structure remains BULLISH. Price has pulled back ~120 pts from session high (30,580) into a defined discount zone (30,380&ndash;30,420). This is the reload zone. WAIT for ISM Manufacturing beat at 10:00 ET &gt;52.7 to provide the catalyst. Do not anticipate &mdash; let the print confirm then bid the bounce.
         </div>
-        <div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--text-dim);">CATALYST: CB Conf miss 10:00 ET accelerates flush &nbsp;|&nbsp; SIZE: Standard</div>
-        <div class="setup-invalidation">&#9940; KILL: OVX spike above 78 or Hormuz escalation headline &rarr; FLAT immediately</div>
+        <div class="setup-levels">
+          <div class="level-item"><span class="level-k">ENTRY</span><span class="level-v entry">30,380&ndash;30,420</span></div>
+          <div class="level-item"><span class="level-k">STOP</span><span class="level-v stop">30,300</span></div>
+          <div class="level-item"><span class="level-k">TARGET 1</span><span class="level-v t1">30,512 (VWAP)</span></div>
+          <div class="level-item"><span class="level-k">TARGET 2</span><span class="level-v t2">30,536 (PDH)</span></div>
+          <div class="level-item"><span class="level-k">R:R T1</span><span class="level-v rr">2.3:1</span></div>
+          <div class="level-item"><span class="level-k">R:R T2</span><span class="level-v rr">3.0:1</span></div>
+        </div>
+        <div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--text-dim);">
+          CONDITION: ISM beat &gt;52.7 &nbsp;|&nbsp; SIZE: Reduced until print, then full on confirmation
+        </div>
+        <div class="setup-invalidation">&#9940; KILL: Loss of 30,300 = extended flush, structure broken &rarr; abort. ISM miss also kills this setup.</div>
       </div>
     </div>
 
-    <div class="setup-card open" onclick="this.classList.toggle('open')">
-      <div class="setup-header">
-        <div class="setup-title"><span class="setup-num">B</span><span class="setup-name">MNQ LONG &mdash; NY Pullback Re-Entry</span></div>
-        <div class="setup-badges"><span class="badge yellow">&#x1F7E1; YELLOW</span><span class="badge" style="color:var(--red);border-color:rgba(255,64,96,0.3);background:rgba(255,64,96,0.08);">WAIT DIP</span><span class="chevron">&#9660;</span></div>
-      </div>
-      <div class="setup-body">
-        <div class="setup-thesis">Structure bullish, VWAP reclaimed, Long Score 4/6. BUT RSI 72 + Vol 0.34x = needs to breathe. Pullback into 29,860&ndash;29,880 VWAP/CHoCH base is the reload zone. CB Consumer Confidence at 10:00 is the catalyst &mdash; a beat sends to 29,975. DO NOT chase 29,920.</div>
-        <div class="setup-levels">
-          <div class="level-item"><span class="level-k">ENTRY</span><span class="level-v entry">29,860&ndash;29,880</span></div>
-          <div class="level-item"><span class="level-k">STOP</span><span class="level-v stop">29,825</span></div>
-          <div class="level-item"><span class="level-k">TARGET 1</span><span class="level-v t1">29,948</span></div>
-          <div class="level-item"><span class="level-k">TARGET 2</span><span class="level-v t2">29,975</span></div>
-          <div class="level-item"><span class="level-k">R:R T1</span><span class="level-v rr">2.0:1</span></div>
-          <div class="level-item"><span class="level-k">R:R T2</span><span class="level-v rr">2.6:1</span></div>
-        </div>
-        <div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--text-dim);">CATALYST: CB Conf beat &gt;93 &rarr; continuation &nbsp;|&nbsp; SIZE: Reduced pre-10:00</div>
-        <div class="setup-invalidation">&#9940; KILL: Loss of 29,820 = NY base broken &rarr; structure fails, abort</div>
-      </div>
-    </div>
-
+    <!-- Setup B -->
     <div class="setup-card" onclick="this.classList.toggle('open')">
       <div class="setup-header">
-        <div class="setup-title"><span class="setup-num">C</span><span class="setup-name">MNQ SHORT FADE &mdash; RSI/Vol Divergence</span></div>
-        <div class="setup-badges"><span class="badge red">&#x1F534; CONDITIONAL</span><span class="chevron">&#9660;</span></div>
+        <div class="setup-title"><span class="setup-num">B</span><span class="setup-name">MNQ SHORT &mdash; VWAP Rejection Continuation</span></div>
+        <div class="setup-badges">
+          <span class="badge red">&#x1F534; CONDITIONAL</span>
+          <span class="chevron">&#9660;</span>
+        </div>
       </div>
       <div class="setup-body">
-        <div class="setup-thesis">RSI 72 on low volume approaching &ldquo;Weak High 42%&rdquo; label. If CB Confidence MISSES and price spikes into 29,948&ndash;29,975 premium, that&rsquo;s a textbook fade. DXY bidding is macro support for this short. Only valid on the miss + premium tag combination.</div>
+        <div class="setup-thesis">
+          Short Score 4/6 on 15M. If ISM Manufacturing MISSES (&lt;52.7) or ISM Prices run hot (&gt;86), price will likely bounce into VWAP (30,490&ndash;30,512) and get rejected. Bearish CHoCH structure confirmed. Only valid if price bounces TO VWAP and then shows rejection candle (bearish engulf or wick rejection). DXY neutral removes major headwind but also tailwind. PMI Prices at 85.5 fcst = stagflation risk = equity pressure.
+        </div>
         <div class="setup-levels">
-          <div class="level-item"><span class="level-k">ENTRY</span><span class="level-v entry">29,948&ndash;29,975</span></div>
-          <div class="level-item"><span class="level-k">STOP</span><span class="level-v stop">30,010</span></div>
-          <div class="level-item"><span class="level-k">TARGET</span><span class="level-v t1">29,820</span></div>
+          <div class="level-item"><span class="level-k">ENTRY</span><span class="level-v entry">30,490&ndash;30,512</span></div>
+          <div class="level-item"><span class="level-k">STOP</span><span class="level-v stop">30,545</span></div>
+          <div class="level-item"><span class="level-k">TARGET</span><span class="level-v t1">30,365</span></div>
           <div class="level-item"><span class="level-k">R:R</span><span class="level-v rr">2.3:1</span></div>
         </div>
-        <div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--red);">&#9888; CONDITION: ONLY on CB miss + price tags premium + RSI divergence confirmed</div>
+        <div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--red);">
+          &#9888; CONDITION: ISM miss OR hot prices + VWAP rejection candle confirmed
+        </div>
+        <div class="setup-invalidation">&#9940; KILL: VWAP reclaimed on volume = bull continuation, abort immediately</div>
+      </div>
+    </div>
+
+    <!-- Setup C -->
+    <div class="setup-card open" onclick="this.classList.toggle('open')">
+      <div class="setup-header">
+        <div class="setup-title"><span class="setup-num">C</span><span class="setup-name">MCL &mdash; STAND ASIDE</span></div>
+        <div class="setup-badges">
+          <span class="badge grey">&#9711; NO TRADE</span>
+          <span class="result-banner win">&#10003; PREV SHORT +2.15</span>
+          <span class="chevron">&#9660;</span>
+        </div>
+      </div>
+      <div class="setup-body">
+        <div class="setup-thesis">
+          Previous MCL short (Setup A from May 26) is closed. Both targets hit: T1 at 92.12 &#10003; and T2 at ~91.62 &#10003;. OVX has collapsed from 75.97 to 57.84 &mdash; the war premium is fully priced out. Current structure is 3/3 score (neutral). 5M shows Bearish CHoCH but 15M still Bullish CHoCH. This is a timeframe conflict with no edge. MCL is also trading ABOVE PDH (89.04) which removes the bearish structural bias entirely. Wait for new structure to resolve.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+          <div class="level-item"><span class="level-k">PREV ENTRY</span><span class="level-v entry">92.70&ndash;93.00</span></div>
+          <div class="level-item"><span class="level-k">CLOSED AT</span><span class="level-v t1">~90.42</span></div>
+          <div class="level-item"><span class="level-k">T1 HIT</span><span class="level-v t1">92.12 &#10003;</span></div>
+          <div class="level-item"><span class="level-k">T2 HIT</span><span class="level-v t2">91.62 &#10003;</span></div>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);background:var(--bg);border:1px solid var(--border2);padding:8px 10px;border-radius:2px;line-height:1.6;">
+          NEXT WATCH: New structure above/below <strong style="color:var(--cyan)">90.00</strong> pivot.<br>
+          Bull thesis resumes if 15M structure holds above PDH (89.04).<br>
+          New short only on OVX re-spike or HTF 1H structure break.
+        </div>
       </div>
     </div>
   </div>
@@ -502,45 +410,109 @@
   <div class="panel" style="grid-column:3;grid-row:2;">
     <div class="panel-title">KILL SWITCHES</div>
     <div class="ks-grid">
-      <div class="ks-item clear"><span class="ks-icon">&#10003;</span><div class="ks-content"><div class="ks-name">VIX</div><div class="ks-val">16.75 &mdash; declining &#8595;</div></div><span class="ks-status">CLEAR</span></div>
-      <div class="ks-item warn"><span class="ks-icon">&#9888;</span><div class="ks-content"><div class="ks-name">OVX (Crude Vol)</div><div class="ks-val">75.97 &mdash; peaked, rolling over &#8595;</div></div><span class="ks-status">WATCH</span></div>
-      <div class="ks-item warn"><span class="ks-icon">&#9888;</span><div class="ks-content"><div class="ks-name">DXY</div><div class="ks-val">99.125 &mdash; bidding &#8593; headwind</div></div><span class="ks-status">WATCH</span></div>
-      <div class="ks-item warn"><span class="ks-icon">&#9888;</span><div class="ks-content"><div class="ks-name">ES (S&amp;P 500)</div><div class="ks-val">7,544 &mdash; distributing from premium</div></div><span class="ks-status">CORREL</span></div>
-      <div class="ks-item warn"><span class="ks-icon">&#9888;</span><div class="ks-content"><div class="ks-name">MNQ RSI 5M</div><div class="ks-val">72.0 &mdash; overbought, low volume</div></div><span class="ks-status">REDUCE</span></div>
-      <div class="ks-item danger"><span class="ks-icon">&#x1F534;</span><div class="ks-content"><div class="ks-name">CB CONFIDENCE</div><div class="ks-val">10:00 ET &mdash; binary print incoming</div></div><span class="ks-status">MACRO</span></div>
-      <div class="ks-item danger"><span class="ks-icon">&#x1F534;</span><div class="ks-content"><div class="ks-name">2-YEAR NOTE AUCTION</div><div class="ks-val">13:00 ET &mdash; hard close 12:45</div></div><span class="ks-status">HARD OUT</span></div>
+
+      <div class="ks-item clear">
+        <span class="ks-icon">&#10003;</span>
+        <div class="ks-content"><div class="ks-name">VIX</div><div class="ks-val">15.79 &mdash; declining &#8595;</div></div>
+        <span class="ks-status">CLEAR</span>
+      </div>
+
+      <div class="ks-item clear">
+        <span class="ks-icon">&#10003;</span>
+        <div class="ks-content"><div class="ks-name">OVX (Crude Vol)</div><div class="ks-val">57.84 &mdash; war premium OUT &#8595;&#8595;</div></div>
+        <span class="ks-status">CLEAR</span>
+      </div>
+
+      <div class="ks-item clear">
+        <span class="ks-icon">&#10003;</span>
+        <div class="ks-content"><div class="ks-name">DXY</div><div class="ks-val">99.057 &mdash; neutral, flat &rarr;</div></div>
+        <span class="ks-status">CLEAR</span>
+      </div>
+
+      <div class="ks-item warn">
+        <span class="ks-icon">&#9888;</span>
+        <div class="ks-content"><div class="ks-name">ES (S&amp;P 500)</div><div class="ks-val">7,615 &mdash; near premium / weak high</div></div>
+        <span class="ks-status">WATCH</span>
+      </div>
+
+      <div class="ks-item danger">
+        <span class="ks-icon">&#x1F534;</span>
+        <div class="ks-content"><div class="ks-name">MNQ RSI 15M</div><div class="ks-val">29.9 &mdash; extreme oversold, bounce risk</div></div>
+        <span class="ks-status">NO SHORT</span>
+      </div>
+
+      <div class="ks-item danger">
+        <span class="ks-icon">&#x1F534;</span>
+        <div class="ks-content"><div class="ks-name">PMI FINAL</div><div class="ks-val">09:45 ET &mdash; fcst 55.3, prior 54.5</div></div>
+        <span class="ks-status">MACRO</span>
+      </div>
+
+      <div class="ks-item danger">
+        <span class="ks-icon">&#x1F534;</span>
+        <div class="ks-content"><div class="ks-name">ISM CLUSTER</div><div class="ks-val">10:00 ET &mdash; PMI + Prices (fcst 85.5!) + Construction</div></div>
+        <span class="ks-status">BINARY</span>
+      </div>
+
     </div>
   </div>
 
   <!-- CATALYST TIMELINE -->
   <div class="panel" style="grid-column:3;grid-row:3;">
-    <div class="panel-title">CATALYST TIMELINE</div>
+    <div class="panel-title">CATALYST TIMELINE — JUN 1</div>
     <div class="catalyst-list">
+
+      <div class="catalyst-item hot">
+        <div class="catalyst-time">09:45</div>
+        <div>
+          <div class="catalyst-name">S&amp;P Global PMI Final</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:2px;">Fcst: 55.3 | Prior: 54.5 &mdash; COMING SOON</div>
+        </div>
+        <span class="catalyst-impact high">HIGH</span>
+      </div>
+
       <div class="catalyst-item hot">
         <div class="catalyst-time">10:00</div>
-        <div><div class="catalyst-name">CB Consumer Confidence</div><div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:2px;">Fcst: 92 | Prior: 92.8</div></div>
-        <span class="catalyst-impact high">BINARY</span>
+        <div>
+          <div class="catalyst-name">ISM Manufacturing PMI</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:2px;">Fcst: 53 | Prior: 52.7</div>
+        </div>
+        <span class="catalyst-impact binary">BINARY</span>
       </div>
+
+      <div class="catalyst-item hot">
+        <div class="catalyst-time">10:00</div>
+        <div>
+          <div class="catalyst-name">ISM Manufacturing Prices</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:2px;">Fcst: 85.5 | Prior: 84.6 &mdash; INFLATION SIGNAL</div>
+        </div>
+        <span class="catalyst-impact high">HOT</span>
+      </div>
+
       <div class="catalyst-item">
-        <div class="catalyst-time">10:30</div>
-        <div><div class="catalyst-name">Dallas Fed Manufacturing</div><div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:2px;">Prior: -2.3</div></div>
+        <div class="catalyst-time">10:00</div>
+        <div>
+          <div class="catalyst-name">Construction Spending MoM</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:2px;">Fcst: +0.2% | Prior: +0.6%</div>
+        </div>
         <span class="catalyst-impact med">MED</span>
       </div>
+
       <div class="catalyst-item">
         <div class="catalyst-time">11:30</div>
-        <div><div class="catalyst-name">3M / 6M Bill Auctions</div><div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:2px;">Prior: 3.6% / 3.615%</div></div>
+        <div>
+          <div class="catalyst-name">3M / 6M Bill Auctions</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:2px;">Prior: 3.595% / 3.65%</div>
+        </div>
         <span class="catalyst-impact low">LOW</span>
       </div>
-      <div class="catalyst-item hot">
-        <div class="catalyst-time">13:00</div>
-        <div><div class="catalyst-name">2-Year Note Auction</div><div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-top:2px;">Prior: 3.812% &rarr; HARD CLOSE 12:45</div></div>
-        <span class="catalyst-impact high">MACRO</span>
-      </div>
+
     </div>
+
+    <!-- COUNTDOWN -->
     <div class="countdown-box">
       <div class="countdown-label">NEXT CATALYST IN</div>
-      <div class="countdown-time" id="countdown">01:04:00</div>
-      <div class="countdown-event">CB CONSUMER CONFIDENCE &mdash; 10:00 ET</div>
+      <div class="countdown-time" id="countdown">02:22:00</div>
+      <div class="countdown-event" id="countdown-label">S&amp;P GLOBAL PMI FINAL &mdash; 09:45 ET</div>
     </div>
   </div>
 
@@ -548,21 +520,38 @@
   <div class="panel" style="grid-column:1;grid-row:3;">
     <div class="panel-title">MACRO SENSORS</div>
     <div class="macro-grid">
-      <div class="macro-item"><span class="macro-name">VIX</span><span class="macro-val neutral">16.75</span><span class="macro-trend">&#8595; CALM</span></div>
-      <div class="macro-item"><span class="macro-name">DXY</span><span class="macro-val warn">99.125</span><span class="macro-trend">&#8593; BIDDING</span></div>
-      <div class="macro-item"><span class="macro-name">OVX</span><span class="macro-val warn">75.97</span><span class="macro-trend">&#8595; ROLLING</span></div>
-      <div class="macro-item"><span class="macro-name">ES</span><span class="macro-val bear">7,544</span><span class="macro-trend">DISTRIB</span></div>
+      <div class="macro-item"><span class="macro-name">VIX</span><span class="macro-val neutral">15.79</span><span class="macro-trend">&#8595; CALM</span></div>
+      <div class="macro-item"><span class="macro-name">DXY</span><span class="macro-val neutral">99.057</span><span class="macro-trend">&rarr; FLAT</span></div>
+      <div class="macro-item"><span class="macro-name">OVX</span><span class="macro-val priced">57.84</span><span class="macro-trend">&#8595;&#8595; PRICED OUT</span></div>
+      <div class="macro-item"><span class="macro-name">ES</span><span class="macro-val warn">7,615</span><span class="macro-trend">PREMIUM</span></div>
     </div>
+
     <div class="divider"></div>
     <div class="panel-title">GEOPOLITICAL</div>
-    <div style="background:var(--bg3);border:1px solid var(--border2);border-left:3px solid var(--yellow);padding:10px;border-radius:2px;">
-      <div style="font-family:var(--body);font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:4px;">&#x1F7E1; PEACE VIABLE</div>
-      <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.5;">Strikes overnight. Ceasefire still viable. OVX rollover = market pricing de-escalation. Hormuz premium fading.</div>
+    <div style="background:var(--bg3);border:1px solid var(--border2);border-left:3px solid var(--green);padding:10px;border-radius:2px;">
+      <div style="font-family:var(--body);font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px;">&#x1F7E2; DE-ESCALATION CONFIRMED</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);line-height:1.5;">OVX collapsed 75.97 &rarr; 57.84. War premium fully out. Hormuz fears priced out. Geopolitical risk no longer a tradeable edge.</div>
     </div>
+
     <div class="divider"></div>
     <div class="panel-title">SESSION RULE</div>
-    <div style="background:rgba(255,64,96,0.06);border:1px solid rgba(255,64,96,0.2);padding:10px;border-radius:2px;">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--red);line-height:1.6;">HARD CLOSE: 12:45 ET<br>BEFORE 10:00: REDUCE SIZE<br>CAPITAL PRESERVATION PRIORITY</div>
+    <div style="background:rgba(255,200,50,0.05);border:1px solid rgba(255,200,50,0.2);padding:10px;border-radius:2px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--yellow);line-height:1.6;">
+        REDUCE SIZE BEFORE 09:45<br>
+        ISM PRICES 85.5 = STAGFLATION RISK<br>
+        LET CATALYST PRINT &rarr; THEN SIZE IN<br>
+        RSI 29.9 = DO NOT ADD SHORTS
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="panel-title">PREV SESSION P&amp;L</div>
+    <div style="background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.2);padding:10px;border-radius:2px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--green);line-height:1.8;">
+        MCL SHORT &#10003; +2.15 pts<br>
+        <span style="color:var(--text-dim)">Entry 92.70 &rarr; T1 92.12 &rarr; T2 ~91.62</span><br>
+        <span style="color:var(--text-dim)">Max move: 92.57 &rarr; 90.42 = -2.15</span>
+      </div>
     </div>
   </div>
 
@@ -570,19 +559,25 @@
 
 <!-- BOTTOM LINE -->
 <div style="background:linear-gradient(135deg,rgba(0,229,160,0.05),rgba(32,144,255,0.05));border-top:1px solid rgba(0,229,160,0.2);padding:14px 24px;">
-  <div style="font-family:var(--display);font-size:9px;letter-spacing:4px;color:var(--green);margin-bottom:10px;font-weight:700;">BOTTOM LINE &mdash; 08:55 ET</div>
+  <div style="font-family:var(--display);font-size:9px;letter-spacing:4px;color:var(--green);margin-bottom:10px;font-weight:700;">BOTTOM LINE &mdash; JUN 1, 07:23 ET</div>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
     <div style="display:flex;align-items:flex-start;gap:8px;">
-      <span style="color:var(--green);font-size:14px;flex-shrink:0;margin-top:2px;">&#9654;</span>
-      <div style="font-family:var(--body);font-size:13px;line-height:1.5;color:var(--text);"><strong style="color:var(--text-bright)">MCL SHORT is the cleanest trade</strong> &mdash; CHoCH confirmed, RSI crossing 50, OVX stalled. Entry on bounce 92.70&ndash;93.00. Target 91.62 equilibrium.</div>
+      <span style="color:var(--yellow);font-size:14px;flex-shrink:0;margin-top:2px;">&#9654;</span>
+      <div style="font-family:var(--body);font-size:13px;line-height:1.5;color:var(--text);">
+        <strong style="color:var(--text-bright)">MNQ: RSI 29.9 on 15M = extreme oversold.</strong> DO NOT ADD SHORTS. Wait for ISM at 10:00 &mdash; a beat gives the bounce entry at <strong style="color:var(--cyan)">30,380&ndash;30,420</strong>. Target VWAP (30,512) then PDH (30,536).
+      </div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:8px;">
-      <span style="color:var(--yellow);font-size:14px;flex-shrink:0;margin-top:2px;">&#9654;</span>
-      <div style="font-family:var(--body);font-size:13px;line-height:1.5;color:var(--text);"><strong style="color:var(--text-bright)">MNQ: DO NOT chase 29,920.</strong> RSI 72 on dead volume is a trap. Wait for pullback to <strong style="color:var(--cyan)">29,860&ndash;29,880</strong> then reload long.</div>
+      <span style="color:var(--green);font-size:14px;flex-shrink:0;margin-top:2px;">&#9654;</span>
+      <div style="font-family:var(--body);font-size:13px;line-height:1.5;color:var(--text);">
+        <strong style="color:var(--text-bright)">MCL SHORT CLOSED.</strong> Both targets hit. OVX at 57.84 = war premium out. <strong style="color:var(--yellow)">STAND ASIDE</strong> &mdash; 3/3 score, no edge. Wait for new structure above/below 90.00.
+      </div>
     </div>
     <div style="display:flex;align-items:flex-start;gap:8px;">
       <span style="color:var(--red);font-size:14px;flex-shrink:0;margin-top:2px;">&#9654;</span>
-      <div style="font-family:var(--body);font-size:13px;line-height:1.5;color:var(--text);"><strong style="color:var(--text-bright)">CB Confidence 10:00 ET is the trigger.</strong> Reduced size until print. Let it react, then size in. Hard out <strong style="color:var(--red)">12:45 ET</strong> before 2Y auction.</div>
+      <div style="font-family:var(--body);font-size:13px;line-height:1.5;color:var(--text);">
+        <strong style="color:var(--text-bright)">ISM cluster 10:00 ET is the session trigger.</strong> Watch ISM Prices (fcst 85.5) &mdash; a hot print = stagflation = equity pressure. Reduce size until all prints clear. Let reaction confirm direction.
+      </div>
     </div>
   </div>
 </div>
@@ -604,21 +599,30 @@
   function updateCountdown() {
     const now = new Date();
     const et = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-    const target = new Date(et);
-    target.setHours(10, 0, 0, 0);
-    let diff = target - et;
-    if (diff < 0) {
-      const t2 = new Date(et);
-      t2.setHours(13, 0, 0, 0);
-      diff = t2 - et;
-      document.querySelector('.countdown-event').textContent = '2-YEAR NOTE AUCTION — 13:00 ET';
-      if (diff < 0) { document.getElementById('countdown').textContent = 'PAST'; return; }
+
+    // Ordered catalyst targets for today
+    const targets = [
+      { h:9,  m:45, label: "S&P GLOBAL PMI FINAL — 09:45 ET" },
+      { h:10, m:0,  label: "ISM MANUFACTURING CLUSTER — 10:00 ET" },
+      { h:11, m:30, label: "3M/6M BILL AUCTIONS — 11:30 ET" }
+    ];
+
+    for (const t of targets) {
+      const target = new Date(et);
+      target.setHours(t.h, t.m, 0, 0);
+      const diff = target - et;
+      if (diff > 0) {
+        const hh = Math.floor(diff / 3600000);
+        const mm = Math.floor((diff % 3600000) / 60000);
+        const ss = Math.floor((diff % 60000) / 1000);
+        document.getElementById('countdown').textContent =
+          `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+        document.getElementById('countdown-label').textContent = t.label;
+        return;
+      }
     }
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    document.getElementById('countdown').textContent =
-      `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    document.getElementById('countdown').textContent = 'CLOSED';
+    document.getElementById('countdown-label').textContent = 'ALL CATALYSTS PAST';
   }
   setInterval(updateCountdown, 1000);
   updateCountdown();
