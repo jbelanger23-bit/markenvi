@@ -1,0 +1,2 @@
+hyperliquid-python-sdk>=0.24
+pytest>=8
