@@ -50,7 +50,7 @@
   .live-badge { display:flex; align-items:center; gap:6px; background:rgba(255,64,96,0.1); border:1px solid rgba(255,64,96,0.3); padding:4px 10px; border-radius:2px; font-family:var(--mono); font-size:10px; color:var(--red); letter-spacing:2px; }
   .live-dot { width:6px; height:6px; border-radius:50%; background:var(--red); animation:pulse 1s infinite; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
-  .dashboard { display:grid; grid-template-columns:280px 1fr 1fr; grid-template-rows:auto auto auto; gap:1px; background:var(--border); min-height:calc(100vh - 57px); }
+  .dashboard { display:grid; grid-template-columns:280px 1fr 1fr; grid-template-rows:auto auto auto auto; gap:1px; background:var(--border); min-height:calc(100vh - 57px); }
   .panel { background:var(--bg2); padding:16px; position:relative; overflow:hidden; }
   .panel::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:0.3; }
   .panel-title { font-family:var(--mono); font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
@@ -173,6 +173,47 @@
   /* Trade result banner */
   .result-banner { font-family:var(--mono); font-size:9px; padding:4px 10px; border-radius:1px; letter-spacing:1px; display:inline-flex; align-items:center; gap:5px; }
   .result-banner.win { background:rgba(0,229,160,0.12); color:var(--green); border:1px solid rgba(0,229,160,0.3); }
+
+  /* ---- CRYPTO / HYPERLIQUID PANEL ---- */
+  .crypto-panel { grid-column:1/4; grid-row:4; }
+  .crypto-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+  .crypto-head .panel-title { margin-bottom:0; flex:1; min-width:200px; }
+  .src-badge { font-family:var(--mono); font-size:9px; letter-spacing:2px; padding:4px 10px; border-radius:2px; border:1px solid var(--border2); color:var(--text-dim); background:var(--bg3); }
+  .src-badge.live { color:var(--green); border-color:rgba(0,229,160,0.35); background:rgba(0,229,160,0.08); }
+  .src-badge.snap { color:var(--yellow); border-color:rgba(255,200,50,0.35); background:rgba(255,200,50,0.08); }
+  .crypto-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+  @media (max-width:900px){ .crypto-grid { grid-template-columns:1fr; } .crypto-panel{ grid-column:1/-1; } }
+  .coin { background:var(--bg3); border:1px solid var(--border2); border-radius:2px; padding:14px; position:relative; overflow:hidden; min-width:0; }
+  .coin::after { content:''; position:absolute; top:0; bottom:0; left:0; width:3px; background:var(--coin); }
+  .coin.btc { --coin:#f7931a; } .coin.eth { --coin:#8c9eff; } .coin.sol { --coin:#19fb9b; }
+  .coin-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:10px; }
+  .coin-sym { font-family:var(--display); font-size:20px; font-weight:900; letter-spacing:2px; color:var(--coin); }
+  .coin-sub { font-family:var(--mono); font-size:9px; color:var(--text-dim); letter-spacing:1px; margin-top:2px; }
+  .coin-px { text-align:right; }
+  .regime-pill { display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:9px; letter-spacing:2px; padding:4px 9px; border-radius:1px; border:1px solid currentColor; font-weight:700; }
+  .regime-pill.up   { color:var(--green);  background:rgba(0,229,160,0.1); }
+  .regime-pill.down { color:var(--red);    background:rgba(255,64,96,0.1); }
+  .regime-pill.range{ color:var(--yellow); background:rgba(255,200,50,0.1); }
+  .regime-pill.vol  { color:var(--cyan);   background:rgba(0,212,255,0.1); }
+  .regime-pill.liq  { color:var(--red);    background:rgba(255,64,96,0.18); }
+  .regime-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:6px 0 8px; flex-wrap:wrap; }
+  .bias { font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:1px; }
+  .bias b { color:var(--text-bright); }
+  .spark { width:100%; height:44px; display:block; margin:4px 0 8px; }
+  .coin-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+  .coin-stats .stat-item { padding:6px 7px; }
+  .setups-row { display:flex; gap:5px; margin-top:10px; flex-wrap:wrap; }
+  .setup-chip { font-family:var(--mono); font-size:8px; letter-spacing:1px; padding:3px 7px; border-radius:1px; border:1px solid var(--border2); color:var(--text-dim); }
+  .setup-chip.armed { color:var(--green); border-color:rgba(0,229,160,0.35); }
+  .setup-chip.off   { color:var(--red);   border-color:rgba(255,64,96,0.3); text-decoration:line-through; }
+  .next-row { display:flex; gap:4px; margin-top:8px; font-family:var(--mono); font-size:8px; color:var(--text-dim); letter-spacing:1px; flex-wrap:wrap; }
+  .next-row span b { color:var(--text); }
+  .rules-strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:6px; margin-top:12px; }
+  .rule { background:var(--bg); border:1px solid var(--border); border-radius:2px; padding:7px 9px; min-width:0; }
+  .rule-k { font-family:var(--mono); font-size:8px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase; }
+  .rule-v { font-family:var(--mono); font-size:13px; color:var(--text-bright); margin-top:2px; font-variant-numeric:tabular-nums; }
+  .rule-v.ok { color:var(--green); } .rule-v.warn { color:var(--yellow); }
+  .crypto-note { font-family:var(--mono); font-size:9px; color:var(--text-dim); margin-top:8px; letter-spacing:0.5px; }
 </style>
 </head>
 <body>
@@ -183,7 +224,7 @@
   <div style="display:flex;align-items:center;gap:16px;">
     <div>
       <div class="logo">MARKENVI</div>
-      <div class="logo-sub">SESSION ENGINE v2 &mdash; MNQ / MCL</div>
+      <div class="logo-sub">SESSION ENGINE v2 &mdash; MNQ / MCL / CRYPTO</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:20px;">
@@ -555,6 +596,26 @@
     </div>
   </div>
 
+  <!-- CRYPTO / HYPERLIQUID -->
+  <div class="panel crypto-panel">
+    <div class="crypto-head">
+      <div class="panel-title">CRYPTO &mdash; HYPERLIQUID PERPS &middot; HLAGENT PAPER</div>
+      <span class="src-badge snap" id="crypto-src">SNAPSHOT</span>
+    </div>
+    <div class="crypto-grid" id="crypto-grid"></div>
+    <div class="rules-strip">
+      <div class="rule"><div class="rule-k">Paper equity</div><div class="rule-v">$400.00</div></div>
+      <div class="rule"><div class="rule-k">Risk / trade</div><div class="rule-v ok">$3.00 &middot; 0.75%</div></div>
+      <div class="rule"><div class="rule-k">Daily loss cap</div><div class="rule-v warn">-$10.00 &middot; 2.5%</div></div>
+      <div class="rule"><div class="rule-k">Weekly / DD halt</div><div class="rule-v warn">5% / 10%</div></div>
+      <div class="rule"><div class="rule-k">Leverage cap</div><div class="rule-v">3x &middot; 1 position</div></div>
+      <div class="rule"><div class="rule-k">Trades / day</div><div class="rule-v">6 &middot; 3 losses = 2h cool</div></div>
+      <div class="rule"><div class="rule-k">Session size</div><div class="rule-v" id="crypto-session">&mdash;</div></div>
+      <div class="rule"><div class="rule-k">Funding gate</div><div class="rule-v">|8h| &gt; 0.05% blocks side</div></div>
+    </div>
+    <div class="crypto-note" id="crypto-note">Regime from hlagent classifier on 5m bars. Live feed: api.hyperliquid.xyz (price, funding, OI, candles). Falls back to the last snapshot when the feed is unreachable.</div>
+  </div>
+
 </div>
 
 <!-- BOTTOM LINE -->
@@ -626,6 +687,96 @@
   }
   setInterval(updateCountdown, 1000);
   updateCountdown();
+
+  // ---------------- CRYPTO PANEL ----------------
+  const CRYPTO_SEED = {"BTC": {"px": 85963.58, "chg24": -0.46, "regime": "TREND_UP", "conf": 0.92, "bias": 0.7, "adx": 21.6, "atr_pct": 0.092, "vol_rank": 0.66, "closes": [85623.16, 85614.7, 85628.5, 85664.01, 85568.54, 85597.62, 85663.9, 85762.48, 85738.47, 85728.08, 85755.31, 85702.0, 85719.62, 85704.02, 85672.58, 85712.03, 85705.05, 85700.94, 85690.09, 85754.4, 85785.65, 85770.29, 85767.35, 85791.9, 85793.37, 85838.65, 85811.61, 85777.64, 85719.76, 85742.28, 85743.65, 85803.64, 85818.91, 85800.47, 85892.24, 85893.73, 85913.21, 85899.86, 85968.24, 85949.15, 85994.5, 85861.46, 85953.28, 86000.0, 85938.4, 86006.29, 85970.51, 85936.1], "asof": 1791239700000, "notes": [], "fund": null, "oi": null, "v24": null}, "ETH": {"px": 2715.9, "chg24": -0.45, "regime": "TREND_UP", "conf": 0.8, "bias": 0.7, "adx": 29.6, "atr_pct": 0.071, "vol_rank": 0.55, "closes": [2708.8, 2708.03, 2709.56, 2710.44, 2709.39, 2708.23, 2710.26, 2712.24, 2710.21, 2709.68, 2710.35, 2709.45, 2710.79, 2709.22, 2707.11, 2708.45, 2707.18, 2707.32, 2707.6, 2709.46, 2711.58, 2711.47, 2712.44, 2714.85, 2714.36, 2713.89, 2713.18, 2713.16, 2711.37, 2711.72, 2711.93, 2714.41, 2713.15, 2713.8, 2714.55, 2715.0, 2715.04, 2715.48, 2717.5, 2718.39, 2720.08, 2716.26, 2718.51, 2719.03, 2717.79, 2716.4, 2716.99, 2715.81], "asof": 1791239700000, "notes": [], "fund": null, "oi": null, "v24": null}, "SOL": {"px": 121.144, "chg24": -0.66, "regime": "TREND_UP", "conf": 1.0, "bias": 0.7, "adx": 60.6, "atr_pct": 0.15, "vol_rank": 0.88, "closes": [120.0, 119.98, 120.1, 120.09, 120.01, 120.01, 120.24, 120.33, 120.19, 120.12, 120.06, 120.02, 120.08, 120.08, 120.05, 120.22, 120.19, 120.31, 120.17, 120.28, 120.28, 120.23, 120.27, 120.41, 120.47, 120.57, 120.59, 120.64, 120.64, 120.66, 120.7, 120.69, 120.75, 120.67, 120.73, 120.65, 120.64, 120.64, 120.73, 120.8, 121.34, 121.15, 121.52, 121.5, 121.47, 121.43, 121.3, 121.06], "asof": 1791239700000, "notes": [], "fund": null, "oi": null, "v24": null}};
+  const COINS = [["BTC","btc"],["ETH","eth"],["SOL","sol"]];
+  const HL = "https://api.hyperliquid.xyz/info";
+
+  function ema(xs,n){ const k=2/(n+1); let e=xs[0]; return xs.map(x=>(e=x*k+e*(1-k))); }
+  function classify(bars){
+    // port of hlagent.regime.classify (structure + ADX + vol rank), bars oldest->newest, partial dropped
+    const b = bars.slice(0,-1); if (b.length<30) return {state:"RANGE",conf:0.2,bias:0,adx:0,atr:0,vol:0.5};
+    const c = b.map(x=>x.c);
+    const tr=[],pl=[],mn=[];
+    for(let i=1;i<b.length;i++){ const x=b[i],p=b[i-1]; tr.push(Math.max(x.h-x.l,Math.abs(x.h-p.c),Math.abs(x.l-p.c)));
+      const up=x.h-p.h, dn=p.l-x.l; pl.push(up>dn&&up>0?up:0); mn.push(dn>up&&dn>0?dn:0); }
+    const atr=ema(tr,14), pdi=ema(pl,14).map((v,i)=>atr[i]?100*v/atr[i]:0), mdi=ema(mn,14).map((v,i)=>atr[i]?100*v/atr[i]:0);
+    const dx=pdi.map((p,i)=>(p+mdi[i])?100*Math.abs(p-mdi[i])/(p+mdi[i]):0); const adx=ema(dx,14).at(-1);
+    const atrPct=atr.at(-1)/c.at(-1)*100;
+    const rets=c.slice(1).map((v,i)=>v/c[i]-1); const win=12, rv=[];
+    for(let i=win;i<=rets.length;i++){ const s=rets.slice(i-win,i); const m=s.reduce((a,b)=>a+b,0)/win; rv.push(Math.sqrt(s.reduce((a,b)=>a+(b-m)**2,0)/win)); }
+    const hist=rv.slice(-96); const vol=hist.filter(x=>x<=rv.at(-1)).length/hist.length;
+    const e20=ema(c,20).at(-1), e50=ema(c,50).at(-1), n=b.length;
+    const hh=n>18&&b[n-1].h>=b[n-9].h&&b[n-9].h>=b[n-17].h, hl=n>18&&b[n-1].l>=b[n-9].l&&b[n-9].l>=b[n-17].l;
+    const lh=n>18&&b[n-1].h<=b[n-9].h&&b[n-9].h<=b[n-17].h, ll=n>18&&b[n-1].l<=b[n-9].l&&b[n-9].l<=b[n-17].l;
+    const vols=b.slice(-20).map(x=>x.v).sort((a,b)=>a-b); const med=vols[10]||1e-9; const last=b.at(-1); const rng=(last.h-last.l)/last.c*100;
+    if (last.v>3*med && rng>2*atrPct) return {state:"LIQUIDATION",conf:0.7,bias:last.c<last.o?0.4:-0.4,adx,atr:atrPct,vol};
+    if (vol>0.9 && adx<20) return {state:"VOLATILE",conf:0.6,bias:0,adx,atr:atrPct,vol};
+    if (adx>=25 || (e20>e50&&hh&&hl) || (e20<e50&&lh&&ll)) { const up=e20>e50; return {state:up?"TREND_UP":"TREND_DOWN",conf:Math.min(1,0.5+adx/100+(((hh&&hl)||(lh&&ll))?0.2:0)),bias:up?0.7:-0.7,adx,atr:atrPct,vol}; }
+    return {state:"RANGE",conf:Math.min(0.9,0.5+(adx<18?0.2:0)+(vol<0.4?0.2:0)),bias:0,adx,atr:atrPct,vol};
+  }
+  const PILL={TREND_UP:["up","TREND &uarr;"],TREND_DOWN:["down","TREND &darr;"],RANGE:["range","RANGE"],VOLATILE:["vol","VOLATILE"],LIQUIDATION:["liq","LIQUIDATION"]};
+  function spark(closes,color){
+    const w=300,h=44,mn=Math.min(...closes),mx=Math.max(...closes),sp=(mx-mn)||1;
+    const pts=closes.map((v,i)=>[i/(closes.length-1)*w,h-4-(v-mn)/sp*(h-8)]);
+    const d=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
+    const last=pts.at(-1);
+    return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L${w},${h} L0,${h} Z" fill="${color}" opacity="0.08"/><path d="${d}" fill="none" stroke="${color}" stroke-width="1.5"/><circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="${color}"/></svg>`;
+  }
+  function fmt(n,d){ return Number(n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  function setupChips(state,fund){
+    const imb = state==="VOLATILE"?"off":"armed", sr = (state==="TREND_DOWN"||state==="TREND_UP")?"armed":"armed", lq = state==="LIQUIDATION"?"armed":"wait";
+    const crowd = fund>0.0005?"LONGS BLOCKED":fund<-0.0005?"SHORTS BLOCKED":"";
+    return `<div class="setups-row"><span class="setup-chip ${imb}">IMBALANCE</span><span class="setup-chip ${sr}">STOP RUN</span><span class="setup-chip ${lq==="armed"?"armed":""}">LIQ RUN</span>${crowd?`<span class="setup-chip off">${crowd}</span>`:""}</div>`;
+  }
+  function renderCoin(sym,cls,d){
+    const [pc,pl]=PILL[d.regime]; const col=getComputedStyle(document.documentElement).getPropertyValue("--green").trim();
+    const chgCls=d.chg24>=0?"up":"dn"; const sparkColor = {btc:"#f7931a",eth:"#8c9eff",sol:"#19fb9b"}[cls];
+    const next = d.next ? `<div class="next-row">NEXT ${Object.entries(d.next).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`<span>${PILL[k][1].replace(/&\w+;/,'')} <b>${Math.round(v*100)}%</b></span>`).join(" ")}</div>` : "";
+    return `<div class="coin ${cls}">
+      <div class="coin-top"><div><div class="coin-sym">${sym}</div><div class="coin-sub">${sym}-USD PERP &middot; 5M</div></div>
+        <div class="coin-px"><div class="price-val">${fmt(d.px, sym==="SOL"?3:2)}</div><div class="price-change ${chgCls}">${d.chg24>=0?"+":""}${fmt(d.chg24,2)}% 24H</div></div></div>
+      <div class="regime-row"><span class="regime-pill ${pc}">${pl} &middot; ${Math.round(d.conf*100)}%</span><span class="bias">BIAS <b>${d.bias>0.2?"LONG":d.bias<-0.2?"SHORT":"NEUTRAL"} ${d.bias>=0?"+":""}${d.bias.toFixed(1)}</b></span></div>
+      ${spark(d.closes,sparkColor)}
+      <div class="coin-stats">
+        <div class="stat-item"><div class="stat-k">Fund 8h</div><div class="stat-v ${d.fund==null?"":d.fund>0.0003?"warn":d.fund<-0.0003?"warn":""}">${d.fund==null?"n/a":(d.fund*100>=0?"+":"")+(d.fund*100).toFixed(4)+"%"}</div></div>
+        <div class="stat-item"><div class="stat-k">OI</div><div class="stat-v">${d.oi==null?"n/a":"$"+fmt(d.oi/1e6,0)+"M"}</div></div>
+        <div class="stat-item"><div class="stat-k">24h vol</div><div class="stat-v">${d.v24==null?"n/a":"$"+fmt(d.v24/1e6,0)+"M"}</div></div>
+        <div class="stat-item"><div class="stat-k">ADX</div><div class="stat-v ${d.adx>=25?"bull":""}">${d.adx.toFixed(0)}</div></div>
+        <div class="stat-item"><div class="stat-k">ATR %</div><div class="stat-v">${d.atr_pct.toFixed(3)}</div></div>
+        <div class="stat-item"><div class="stat-k">Vol rank</div><div class="stat-v ${d.vol_rank>0.9?"warn":""}">${d.vol_rank.toFixed(2)}</div></div>
+      </div>
+      ${setupChips(d.regime,d.fund)}${next}
+    </div>`;
+  }
+  function renderCrypto(data,src){
+    document.getElementById("crypto-grid").innerHTML = COINS.map(([s,c])=>renderCoin(s,c,data[s])).join("");
+    const badge=document.getElementById("crypto-src"); badge.className="src-badge "+(src==="live"?"live":"snap");
+    const asof=new Date(Math.max(...COINS.map(([s])=>data[s].asof||0)));
+    badge.textContent = src==="live" ? "LIVE · HYPERLIQUID" : "SNAPSHOT · "+asof.toISOString().slice(0,16).replace("T"," ")+" UTC";
+    const wk=new Date().getUTCDay(); const we=(wk===0||wk===6);
+    const el=document.getElementById("crypto-session"); el.textContent = we?"WEEKEND × 0.5":"WEEKDAY × 1.0"; el.className="rule-v "+(we?"warn":"ok");
+  }
+  async function loadCrypto(){
+    try{
+      const ctrl=new AbortController(); setTimeout(()=>ctrl.abort(),6000);
+      const post=b=>fetch(HL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b),signal:ctrl.signal}).then(r=>r.json());
+      const [meta,ctxs]=await post({type:"metaAndAssetCtxs"});
+      const end=Date.now(), start=end-150*300000;
+      const cands=await Promise.all(COINS.map(([s])=>post({type:"candleSnapshot",req:{coin:s,interval:"5m",startTime:start,endTime:end}})));
+      const data={};
+      COINS.forEach(([s],i)=>{
+        const idx=meta.universe.findIndex(a=>a.name===s); const ctx=ctxs[idx];
+        const bars=cands[i].map(c=>({t:+c.t,o:+c.o,h:+c.h,l:+c.l,c:+c.c,v:+c.v}));
+        const r=classify(bars); const px=+(ctx.midPx||ctx.markPx);
+        data[s]={px,chg24:(px/+ctx.prevDayPx-1)*100,regime:r.state,conf:r.conf,bias:r.bias,adx:r.adx,atr_pct:r.atr,vol_rank:r.vol,
+                 fund:+ctx.funding*8,oi:+ctx.openInterest*px,v24:+ctx.dayNtlVlm,closes:bars.slice(-48).map(b=>b.c),asof:bars.at(-1).t};
+      });
+      renderCrypto(data,"live");
+    }catch(e){ renderCrypto(CRYPTO_SEED,"snap"); }
+  }
+  renderCrypto(CRYPTO_SEED,"snap"); loadCrypto(); setInterval(loadCrypto,60000);
 </script>
 </body>
 </html>
