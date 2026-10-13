@@ -1,0 +1,5 @@
+[
+  {"handle": "example_trader", "pnl_30d_usd": 412000, "pnl_7d_usd": 38000,
+   "closed_trades": 146, "win_rate": 0.61, "top_coin_share": 0.22,
+   "avg_hold_minutes": 190, "followers": 2400}
+]
