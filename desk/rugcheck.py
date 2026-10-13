@@ -1,8 +1,8 @@
 # rugcheck.py
 # Fetches one Rugcheck report and keeps only the fields the desk reads.
-# Grok never sees the raw report: a fat payload costs tokens and costs accuracy.
+# The judge never sees the raw report: a fat payload costs tokens and costs accuracy.
 import requests
-from config import TOKEN
+import settings
 
 RC = "https://api.rugcheck.xyz/v1/tokens"
 
@@ -28,15 +28,16 @@ def report(mint: str) -> dict:
     }
 
 
-def fact_kill(t: dict) -> str | None:
+def fact_kill(t: dict, cfg: dict | None = None) -> str | None:
     """Pass 4. Plain comparisons. First failure wins, the reason gets logged."""
+    cfg = cfg or settings.load()["token"]
     if t["risk_score"] is None:                            return "no_report"
     if t["mint_authority"] or t["freeze_authority"]:       return "authority_open"
     if t["danger"]:                                        return "danger:" + t["danger"][0]
-    if t["risk_score"] > TOKEN["max_risk_score"]:          return "risk_score"
-    if t["top10_pct"] is not None and t["top10_pct"] > TOKEN["max_top10_pct"]:
+    if t["risk_score"] > cfg["max_risk_score"]:            return "risk_score"
+    if t["top10_pct"] is not None and t["top10_pct"] > cfg["max_top10_pct"]:
         return "top10"
-    if t["lp_locked_pct"] is not None and t["lp_locked_pct"] < TOKEN["min_lp_locked_pct"]:
+    if t["lp_locked_pct"] is not None and t["lp_locked_pct"] < cfg["min_lp_locked_pct"]:
         return "lp_unlocked"
-    if t["insider_nets"] > TOKEN["max_insider_nets"]:     return "insiders"
+    if t["insider_nets"] > cfg["max_insider_nets"]:        return "insiders"
     return None

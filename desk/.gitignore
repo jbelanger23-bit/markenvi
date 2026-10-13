@@ -1,6 +1,6 @@
-# desk state: never commit live leaders, logs or trader dumps
-leaders.json
-checks.csv
+# desk state: never commit live leaders, logs, settings (holds your key) or trader dumps
+data/
 traders.json
 __pycache__/
+.venv/
 .env

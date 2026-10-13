@@ -1,9 +1,9 @@
 # prompts.py
-# Both Grok prompts live here and nowhere else.
+# Both judge prompts live here and nowhere else, with the JSON schema each must answer in.
 #
 # THE PROMPTS NEVER SEE THE KEY, THE BALANCE OR THE TICKET HISTORY. Only the fields they judge.
-# JSON OR NOTHING. A paragraph back from Grok is logged and treated as SKIP.
-# CONFIDENCE IS A SEPARATE AXIS. COPY at 0.55 is not a COPY. MIN_CONFIDENCE decides.
+# JSON OR NOTHING. The schema is enforced by the API; a non-JSON answer is a SKIP.
+# CONFIDENCE IS A SEPARATE AXIS. COPY at 0.55 is not a COPY. min_confidence decides.
 
 TRADER_PROMPT = """
 You are TRADER DESK. You rank fomo traders for copy trading. You never pick coins.
@@ -18,18 +18,30 @@ RANK THEM. What you weigh, in this order:
   3. hold time: minutes-long scalps are hard to copy, the fill lands late
   4. crowding: very high followers = many copiers = worse fills for us
 
-RETURN ONLY JSON:
-{"leaders": [{"handle": "...", "rank": 1, "why": "one line", "risk": "one line"}],
- "rejected": [{"handle": "...", "reason": "one line"}]}
-
 Return at most 3 leaders. Zero is a valid answer.
 NEVER invent a stat that is not in the input.
 NEVER rank on pnl size alone.
 """
 
+TRADER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "leaders": {"type": "array", "maxItems": 3, "items": {
+            "type": "object",
+            "properties": {"handle": {"type": "string"}, "rank": {"type": "integer"},
+                           "why": {"type": "string"}, "risk": {"type": "string"}},
+            "required": ["handle", "rank", "why", "risk"], "additionalProperties": False}},
+        "rejected": {"type": "array", "items": {
+            "type": "object",
+            "properties": {"handle": {"type": "string"}, "reason": {"type": "string"}},
+            "required": ["handle", "reason"], "additionalProperties": False}},
+    },
+    "required": ["leaders", "rejected"], "additionalProperties": False,
+}
+
 TOKEN_PROMPT = """
 You are TOKEN DESK. A leader we copy just bought a token. You decide if we follow
-with a flat $50 ticket. You never size, you never time the exit.
+with a flat ticket. You never size, you never time the exit.
 
 INPUT: {"leader": {...trader stats...}, "token": {...rugcheck facts...}}
 The token already passed the hard fact checks in code. Do not re-check them.
@@ -38,10 +50,18 @@ Judge what code can't:
   - is the holder spread consistent with a crowd, or with a few wallets
   - does this buy fit the leader's own pattern, or is it out of character
 
-RETURN ONLY JSON:
-{"verdict": "COPY" | "SKIP", "confidence": 0.0-1.0,
- "why": "two lines max", "main_risk": "one line"}
-
+verdict is COPY or SKIP. confidence is 0.0-1.0. why is two lines max. main_risk is one line.
 NEVER answer COPY when a field you needed is null. Missing is missing, not fine.
 NEVER mention price targets. You don't know them.
 """
+
+TOKEN_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "verdict": {"type": "string", "enum": ["COPY", "SKIP"]},
+        "confidence": {"type": "number"},
+        "why": {"type": "string"},
+        "main_risk": {"type": "string"},
+    },
+    "required": ["verdict", "confidence", "why", "main_risk"], "additionalProperties": False,
+}

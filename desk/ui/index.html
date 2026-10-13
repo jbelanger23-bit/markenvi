@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>desk</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --bg: #080c10; --bg2: #0d1117; --bg3: #111820; --border: #1e2d3d;
+    --fg: #d6dde6; --dim: #7c8a99; --green: #00e5a0; --red: #ff4060; --amber: #ffb547;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; align-items: center; gap: 18px; padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--bg2); }
+  header h1 { margin: 0; font-size: 18px; letter-spacing: .08em; text-transform: uppercase; }
+  header h1 span { color: var(--green); }
+  nav { display: flex; gap: 4px; margin-left: auto; }
+  nav button { background: none; border: 1px solid transparent; color: var(--dim); padding: 7px 12px; border-radius: 6px; cursor: pointer; font: inherit; }
+  nav button.on { color: var(--fg); border-color: var(--border); background: var(--bg3); }
+  #keyflag { font-size: 12px; color: var(--dim); }
+  #keyflag.bad { color: var(--red); }
+  main { max-width: 1080px; margin: 0 auto; padding: 20px 16px 60px; }
+  section { display: none; } section.on { display: block; }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .card h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--dim); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--dim); min-width: 120px; flex: 1; }
+  input, select, textarea { background: var(--bg); border: 1px solid var(--border); color: var(--fg); padding: 8px 10px; border-radius: 6px; font: inherit; width: 100%; }
+  textarea { font-family: var(--mono); font-size: 12px; min-height: 140px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); }
+  button.go { background: var(--green); color: #04110c; border: 0; padding: 9px 16px; border-radius: 6px; font: inherit; font-weight: 600; cursor: pointer; }
+  button.go:disabled { opacity: .5; cursor: wait; }
+  button.ghost { background: none; border: 1px solid var(--border); color: var(--fg); padding: 6px 10px; border-radius: 6px; font: inherit; cursor: pointer; }
+  button.ghost.danger { color: var(--red); }
+  .verdict { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+  .verdict .big { font-size: 34px; font-weight: 800; letter-spacing: .06em; }
+  .COPY { color: var(--green); } .SKIP { color: var(--red); }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--dim); }
+  .facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
+  .fact { background: var(--bg3); border-radius: 6px; padding: 8px 10px; }
+  .fact b { display: block; font-size: 11px; color: var(--dim); font-weight: 500; }
+  .fact span { font-family: var(--mono); font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--dim); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  td.mono { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+  .err { color: var(--red); white-space: pre-wrap; font-family: var(--mono); font-size: 12px; }
+  .muted { color: var(--dim); font-size: 12px; }
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .stat { flex: 1; min-width: 140px; background: var(--bg3); border-radius: 8px; padding: 10px 12px; }
+  .stat b { display: block; font-size: 22px; font-family: var(--mono); }
+  .stat span { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .note { border-left: 3px solid var(--amber); padding: 8px 12px; background: var(--bg3); border-radius: 0 6px 6px 0; font-size: 13px; margin-bottom: 14px; }
+  code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 1px 5px; border-radius: 4px; }
+  @media (max-width: 640px) { header { flex-wrap: wrap; } nav { margin-left: 0; width: 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <h1><span>desk</span> · copy-trade filter</h1>
+  <span id="keyflag"></span>
+  <nav>
+    <button data-tab="check" class="on">Check a buy</button>
+    <button data-tab="leaders">Leaders</button>
+    <button data-tab="log">Log</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+</header>
+<main>
+
+<section id="tab-check" class="on">
+  <div class="card">
+    <h2>A leader bought. Should you follow?</h2>
+    <form id="checkForm" class="row">
+      <label style="flex:3">mint address (Solana)<input name="mint" placeholder="paste the mint from the copyfomo alert" required autocomplete="off"></label>
+      <label>leader<select name="handle" id="handleSel" required></select></label>
+      <button class="go" type="submit" id="checkBtn">Run the funnel</button>
+    </form>
+    <p class="muted" id="noLeaders" style="display:none">No leaders yet. Go to the Leaders tab and run a pick first.</p>
+    <div id="checkErr" class="err"></div>
+  </div>
+  <div class="card" id="verdictCard" style="display:none"></div>
+  <div class="card">
+    <h2>How a check runs</h2>
+    <p class="muted" style="margin:0">leader in list → Rugcheck report → fact cut in code (open authority, danger flag, risk score, top-10, LP lock, insiders) → Claude judges what code can't → COPY only above the confidence floor. Every call that fails is a SKIP. A COPY means <em>you</em> place the flat ticket in copyfomo; nothing here moves money.</p>
+  </div>
+</section>
+
+<section id="tab-leaders">
+  <div class="grid2">
+    <div class="card">
+      <h2>Current leaders</h2>
+      <div id="leaderList"></div>
+    </div>
+    <div class="card">
+      <h2>Weekly pick: paste leaderboard stats</h2>
+      <p class="muted">A JSON list, one object per trader, from copyfomo <code>/leaderboard</code> plus each fomo profile. Fields: handle, pnl_30d_usd, pnl_7d_usd, closed_trades, win_rate, top_coin_share, avg_hold_minutes, followers.</p>
+      <textarea id="tradersTxt"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="go" id="pickBtn">Code cut + Claude rank</button>
+        <button class="ghost" id="addRowBtn">+ add a blank trader</button>
+      </div>
+      <div id="pickErr" class="err"></div>
+    </div>
+  </div>
+  <div class="card" id="pickOut" style="display:none"></div>
+</section>
+
+<section id="tab-log">
+  <div class="stats" id="logStats"></div>
+  <div class="card">
+    <div class="row" style="margin-bottom:10px">
+      <label style="max-width:160px">verdict<select id="logFilter"><option value="">all</option><option>COPY</option><option>SKIP</option></select></label>
+      <span class="muted" id="logPath"></span>
+    </div>
+    <div style="overflow:auto"><table id="logTable"><thead><tr><th>time</th><th>leader</th><th>symbol</th><th>mint</th><th>verdict</th><th>conf</th><th>stage</th><th>reason</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</section>
+
+<section id="tab-settings">
+  <div class="note">These numbers are one person's tuning on one month of $50 tickets. Run checks for a week and only read the log before putting a dollar behind a verdict. If you disagree with a verdict, change a number here, not the dice.</div>
+  <form id="settingsForm">
+    <div class="grid2">
+      <div class="card">
+        <h2>Judge</h2>
+        <div class="row">
+          <label>Anthropic API key<input type="password" name="anthropic_api_key" placeholder="sk-ant-… (leave blank to keep current)" autocomplete="off"></label>
+        </div>
+        <p class="muted" id="keyNote"></p>
+        <div class="row">
+          <label>model<input name="model"></label>
+          <label>effort<select name="effort"><option>low</option><option>medium</option><option>high</option></select></label>
+          <label>min confidence for COPY<input name="min_confidence" type="number" step="0.01" min="0" max="1"></label>
+          <label>ticket USD (display only)<input name="ticket_usd" type="number" step="1"></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Trader cut (pass 1)</h2>
+        <div class="row">
+          <label>min closed trades<input name="trader.min_closed_trades" type="number"></label>
+          <label>min win rate<input name="trader.min_win_rate" type="number" step="0.01"></label>
+          <label>max top-coin share<input name="trader.max_top_coin_share" type="number" step="0.01"></label>
+          <label>min 7d pnl USD<input name="trader.min_pnl_7d_usd" type="number"></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Token cut (pass 4)</h2>
+        <div class="row">
+          <label>max risk score<input name="token.max_risk_score" type="number"></label>
+          <label>max top-10 %<input name="token.max_top10_pct" type="number" step="0.1"></label>
+          <label>min LP locked %<input name="token.min_lp_locked_pct" type="number" step="0.1"></label>
+          <label>max insider networks<input name="token.max_insider_nets" type="number"></label>
+        </div>
+      </div>
+    </div>
+    <div class="row"><button class="go" type="submit">Save settings</button><span class="muted" id="settingsMsg"></span></div>
+    <div id="settingsErr" class="err"></div>
+  </form>
+</section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let S = { settings: {}, leaders: [], log: [] };
+
+async function api(path, body) {
+  const r = await fetch(path, body ? { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body) } : {});
+  const j = await r.json().catch(() => ({ error: "bad response" }));
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+function showTab(t) {
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  document.querySelectorAll("main section").forEach(s => s.classList.toggle("on", s.id === "tab-" + t));
+  try { localStorage.setItem("desk.tab", t); } catch (e) {}
+}
+
+async function refresh() {
+  S = await api("/api/state");
+  renderKey(); renderHandles(); renderLeaders(); renderLog(); renderSettings();
+}
+
+function renderKey() {
+  const k = $("#keyflag"), s = S.settings;
+  k.textContent = s.key_set ? `judge: ${s.model} · key from ${s.key_source}` : "no Anthropic key set → every check is a SKIP";
+  k.className = s.key_set ? "" : "bad";
+  $("#keyNote").textContent = s.key_set ? `A key is set (${s.key_source}). Paste a new one to replace it.` : "No key. Create one at console.anthropic.com and paste it here, or export ANTHROPIC_API_KEY before starting.";
+}
+
+function renderHandles() {
+  const sel = $("#handleSel");
+  sel.innerHTML = S.leaders.map(l => `<option>${esc(l.handle)}</option>`).join("");
+  $("#noLeaders").style.display = S.leaders.length ? "none" : "";
+  $("#checkBtn").disabled = !S.leaders.length;
+}
+
+$("#checkForm").onsubmit = async e => {
+  e.preventDefault();
+  const f = e.target, btn = $("#checkBtn");
+  btn.disabled = true; btn.textContent = "Fetching report, asking the judge…";
+  $("#checkErr").textContent = "";
+  try {
+    const v = await api("/api/check", { mint: f.mint.value.trim(), handle: f.handle.value });
+    renderVerdict(v);
+    S.log.unshift(v); renderLog();
+  } catch (err) { $("#checkErr").textContent = err.message; }
+  btn.disabled = false; btn.textContent = "Run the funnel";
+};
+
+function renderVerdict(v) {
+  const t = v.token || {}, c = $("#verdictCard");
+  const fact = (k, val) => `<div class="fact"><b>${k}</b><span>${val === null || val === undefined ? "null" : esc(Array.isArray(val) ? (val.join(", ") || "none") : val)}</span></div>`;
+  c.style.display = "";
+  c.innerHTML = `
+    <div class="verdict">
+      <div class="big ${v.verdict}">${v.verdict}</div>
+      <div>
+        <div><b>${esc(v.symbol || "?")}</b> · ${esc(v.leader)} <span class="pill">stopped at: ${esc(v.stage)}</span>${v.confidence != null ? ` <span class="pill">confidence ${Number(v.confidence).toFixed(2)}</span>` : ""}</div>
+        <div class="muted" style="font-family:var(--mono)">${esc(v.mint)}</div>
+      </div>
+      <button class="ghost" style="margin-left:auto" id="copyMint">copy mint</button>
+    </div>
+    <div><b>why:</b> ${esc(v.reason)}</div>
+    ${v.main_risk ? `<div><b>main risk:</b> ${esc(v.main_risk)}</div>` : ""}
+    ${v.verdict === "COPY" ? `<div class="note" style="margin-top:12px">COPY. Place a flat $${esc(S.settings.ticket_usd)} ticket on ${esc(v.symbol)} in copyfomo. Stop loss and take profit live in copyfomo /settings.</div>` : ""}
+    ${v.token ? `<div class="facts">${fact("risk score", t.risk_score)}${fact("top-10 %", t.top10_pct)}${fact("LP locked %", t.lp_locked_pct)}${fact("insider nets", t.insider_nets)}${fact("mint authority", t.mint_authority)}${fact("freeze authority", t.freeze_authority)}${fact("danger", t.danger)}${fact("warn", t.warn)}</div>` : ""}`;
+  $("#copyMint").onclick = e => navigator.clipboard.writeText(v.mint).then(() => { e.target.textContent = "copied"; });
+}
+
+function renderLeaders() {
+  const el = $("#leaderList");
+  if (!S.leaders.length) { el.innerHTML = `<p class="muted">None yet. Paste stats on the right and run a pick. Then turn on copyfomo /alerts for each one.</p>`; return; }
+  el.innerHTML = `<table><thead><tr><th>#</th><th>handle</th><th>why / risk</th><th></th></tr></thead><tbody>` +
+    S.leaders.map((l, i) => `<tr><td>${esc(l.rank ?? i + 1)}</td><td class="mono">${esc(l.handle)}</td><td class="muted">${esc(l.why || "")}<br>risk: ${esc(l.risk || "")}</td><td><button class="ghost danger" data-rm="${i}">remove</button></td></tr>`).join("") + `</tbody></table>`;
+  el.querySelectorAll("[data-rm]").forEach(b => b.onclick = async () => {
+    const leaders = S.leaders.filter((_, i) => i !== +b.dataset.rm);
+    await api("/api/leaders", { leaders }); refresh();
+  });
+}
+
+const EXAMPLE = [{ handle: "example_trader", pnl_30d_usd: 412000, pnl_7d_usd: 38000, closed_trades: 146, win_rate: 0.61, top_coin_share: 0.22, avg_hold_minutes: 190, followers: 2400 }];
+const BLANK = { handle: "", pnl_30d_usd: 0, pnl_7d_usd: 0, closed_trades: 0, win_rate: 0, top_coin_share: 0, avg_hold_minutes: 0, followers: 0 };
+(() => { let d = null; try { d = localStorage.getItem("desk.traders"); } catch (e) {} $("#tradersTxt").value = d || JSON.stringify(EXAMPLE, null, 2); })();
+$("#tradersTxt").oninput = () => { try { localStorage.setItem("desk.traders", $("#tradersTxt").value); } catch (e) {} };
+$("#addRowBtn").onclick = () => {
+  let arr; try { arr = JSON.parse($("#tradersTxt").value || "[]"); } catch (e) { arr = []; }
+  arr.push({ ...BLANK }); $("#tradersTxt").value = JSON.stringify(arr, null, 2); $("#tradersTxt").oninput();
+};
+$("#pickBtn").onclick = async () => {
+  $("#pickErr").textContent = "";
+  let traders; try { traders = JSON.parse($("#tradersTxt").value); } catch (e) { $("#pickErr").textContent = "not valid JSON: " + e.message; return; }
+  const btn = $("#pickBtn"); btn.disabled = true; btn.textContent = "Cutting, ranking…";
+  try {
+    const out = await api("/api/pick", { traders });
+    const o = $("#pickOut"); o.style.display = "";
+    o.innerHTML = `<h2>Pick result</h2>` + (out.note ? `<div class="note">${esc(out.note)}</div>` : "") +
+      (out.leaders.length ? `<table><thead><tr><th>#</th><th>handle</th><th>why</th><th>risk</th></tr></thead><tbody>${out.leaders.map(l => `<tr><td>${l.rank}</td><td class="mono">${esc(l.handle)}</td><td>${esc(l.why)}</td><td>${esc(l.risk)}</td></tr>`).join("")}</tbody></table><p class="muted">Saved as your leaders. Now turn on copyfomo /alerts for each handle. Watching, not copying.</p>` : "") +
+      (out.cut.length ? `<p class="muted"><b>cut by code:</b> ${out.cut.map(c => `${esc(c.handle)} (${esc(c.reason)})`).join(", ")}</p>` : "") +
+      (out.rejected.length ? `<p class="muted"><b>rejected by the judge:</b> ${out.rejected.map(c => `${esc(c.handle)}: ${esc(c.reason)}`).join("; ")}</p>` : "");
+    refresh();
+  } catch (err) { $("#pickErr").textContent = err.message; }
+  btn.disabled = false; btn.textContent = "Code cut + Claude rank";
+};
+
+$("#logFilter").onchange = renderLog;
+function renderLog() {
+  const f = $("#logFilter").value, rows = S.log.filter(r => !f || r.verdict === f);
+  $("#logTable tbody").innerHTML = rows.map(r => `<tr><td class="mono">${esc(r.time)}</td><td class="mono">${esc(r.leader)}</td><td>${esc(r.symbol)}</td><td class="mono" title="${esc(r.mint)}">${esc(String(r.mint || "").slice(0, 6))}…</td><td class="${esc(r.verdict)}"><b>${esc(r.verdict)}</b></td><td class="mono">${r.confidence ? Number(r.confidence).toFixed(2) : ""}</td><td class="muted">${esc(r.stage || "")}</td><td>${esc(r.reason)}</td></tr>`).join("") || `<tr><td colspan="8" class="muted">No checks yet.</td></tr>`;
+  const week = Date.now() - 7 * 864e5, recent = S.log.filter(r => new Date(r.time.replace(" ", "T")).getTime() > week);
+  const skips = recent.filter(r => r.verdict === "SKIP").length, copies = recent.filter(r => r.verdict === "COPY").length;
+  $("#logStats").innerHTML = [["checks, 7d", recent.length], ["skips, 7d", skips], ["copies, 7d", copies], ["all time", S.log.length]].map(([k, v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join("") +
+    (recent.length && skips < 10 ? `<div class="note" style="flex-basis:100%;margin:0">Under ten skips this week. The guide's rule: that means the filter is too loose.</div>` : "");
+  $("#logPath").textContent = `log file: ${S.data_dir}/checks.csv`;
+}
+
+function renderSettings() {
+  const f = $("#settingsForm"), s = S.settings;
+  for (const el of f.elements) {
+    if (!el.name || el.name === "anthropic_api_key") continue;
+    const [a, b] = el.name.split("."); el.value = b ? s[a][b] : s[a];
+  }
+}
+$("#settingsForm").onsubmit = async e => {
+  e.preventDefault(); $("#settingsErr").textContent = ""; $("#settingsMsg").textContent = "";
+  const body = { trader: {}, token: {} };
+  for (const el of e.target.elements) {
+    if (!el.name) continue;
+    if (el.name === "anthropic_api_key") { if (el.value.trim()) body.anthropic_api_key = el.value.trim(); continue; }
+    const [a, b] = el.name.split("."); if (b) body[a][b] = el.value; else body[a] = el.value;
+  }
+  try { await api("/api/settings", body); e.target.anthropic_api_key.value = ""; $("#settingsMsg").textContent = "saved"; refresh(); }
+  catch (err) { $("#settingsErr").textContent = err.message; }
+};
+
+(() => { let t = null; try { t = localStorage.getItem("desk.tab"); } catch (e) {} if (t) showTab(t); })();
+refresh().catch(err => { $("#checkErr").textContent = "could not reach the server: " + err.message; });
+</script>
+</body>
+</html>

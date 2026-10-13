@@ -1,6 +1,10 @@
 # config.py
-# Every number on the desk lives here. When you retune, edit this file and nothing else.
-MODEL = "grok-4"            # check console.x.ai -> Models if the API rejects it
+# Every number on the desk starts here. The Settings tab in the app writes overrides to
+# data/settings.json; nothing in this file is edited at runtime.
+import os
+
+MODEL = "claude-opus-5-5"   # the only judge on the desk
+EFFORT = "medium"           # low | medium | high. thinking depth of the judge
 TICKET_USD = 50             # flat. never size up because the last three won
 
 TRADER = {                  # pass 1, arithmetic, no network
@@ -17,6 +21,12 @@ TOKEN = {                   # pass 4, facts from rugcheck, no model
     "max_insider_nets":  0,
 }
 
-MIN_CONFIDENCE = 0.65       # Grok says COPY below this -> treated as SKIP
-LEADERS_FILE = "leaders.json"
-LOG_FILE = "checks.csv"
+MIN_CONFIDENCE = 0.65       # Claude says COPY below this -> treated as SKIP
+
+# Local state. Everything under DATA_DIR is ignored by git.
+DATA_DIR = os.environ.get("DESK_DATA_DIR") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+LEADERS_FILE = os.path.join(DATA_DIR, "leaders.json")
+LOG_FILE = os.path.join(DATA_DIR, "checks.csv")
+SETTINGS_FILE = os.path.join(DATA_DIR, "settings.json")
+
+HOST, PORT = "127.0.0.1", 8787
