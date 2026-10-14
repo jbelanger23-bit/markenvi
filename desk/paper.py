@@ -3,13 +3,15 @@
 # guards (max positions, no re-buy, first buy wins) gate the fill, and its exit rules (stop
 # loss, take half at +100%) run on every mark. Mirror exits need you: "leader sold" closes.
 # Nothing here touches a wallet. All state lives in data/paper.json.
-import json, os, time, uuid
+import json, os, threading, time, uuid
 import settings
 from config import DATA_DIR
 from prices import price_usd
 
 PAPER_FILE = os.path.join(DATA_DIR, "paper.json")
-EMPTY = {"cash": None, "positions": []}
+EMPTY = {"cash": None, "positions": [], "events": []}
+LOCK = threading.RLock()     # the server's background marker and the UI both write the book
+MAX_EVENTS = 50
 
 
 def now() -> str:
@@ -29,6 +31,7 @@ def load(path: str = PAPER_FILE, s: dict | None = None) -> dict:
         d = json.loads(json.dumps(EMPTY))
     if d.get("cash") is None:
         d["cash"] = float(s["paper"]["start_balance"])
+    d.setdefault("events", [])
     return d
 
 
@@ -39,9 +42,15 @@ def save(d: dict, path: str = PAPER_FILE):
 
 
 def reset(path: str = PAPER_FILE, s: dict | None = None) -> dict:
-    d = json.loads(json.dumps(EMPTY))
-    save(d, path)
-    return load(path, s)
+    with LOCK:
+        d = json.loads(json.dumps(EMPTY))
+        save(d, path)
+        return load(path, s)
+
+
+def _event(d: dict, text: str):
+    d["events"].append({"time": now(), "text": text})
+    del d["events"][:-MAX_EVENTS]
 
 
 def open_pos(d: dict) -> list[dict]:
@@ -68,24 +77,26 @@ def try_open(mint: str, symbol: str | None, leader: str, s: dict | None = None,
              path: str = PAPER_FILE, price: float | None = None) -> dict:
     """Called on every COPY when paper mode is on. Returns {"filled": bool, "reason"|"position"}."""
     s = s or settings.load()
-    d = load(path, s)
-    if (why := guard(d, mint, s)):
-        return {"filled": False, "reason": why}
     if price is None:
         try:
             price = price_usd(mint)
         except Exception as e:
             return {"filled": False, "reason": f"price failed: {e}"}
-    if not price or price <= 0:
-        return {"filled": False, "reason": "no price on DexScreener"}
-    usd = float(s["ticket_usd"])
-    p = {"id": uuid.uuid4().hex[:8], "mint": mint, "symbol": symbol, "leader": leader,
-         "opened": now(), "entry": price, "qty": usd / price, "cost": usd,
-         "status": "open", "tp_taken": False, "realized": 0.0, "last": price, "marked": now()}
-    d["cash"] -= usd
-    d["positions"].append(p)
-    save(d, path)
-    return {"filled": True, "position": p}
+    with LOCK:
+        d = load(path, s)
+        if (why := guard(d, mint, s)):
+            return {"filled": False, "reason": why}
+        if not price or price <= 0:
+            return {"filled": False, "reason": "no price on DexScreener"}
+        usd = float(s["ticket_usd"])
+        p = {"id": uuid.uuid4().hex[:8], "mint": mint, "symbol": symbol, "leader": leader,
+             "opened": now(), "entry": price, "qty": usd / price, "cost": usd,
+             "status": "open", "tp_taken": False, "realized": 0.0, "last": price, "marked": now()}
+        d["cash"] -= usd
+        d["positions"].append(p)
+        _event(d, f"{symbol}: paper fill ${usd:.0f} at {price:g} ({leader})")
+        save(d, path)
+        return {"filled": True, "position": p}
 
 
 def _sell(d: dict, p: dict, qty: float, price: float, reason: str):
@@ -101,34 +112,46 @@ def _sell(d: dict, p: dict, qty: float, price: float, reason: str):
 def mark(s: dict | None = None, path: str = PAPER_FILE, prices: dict | None = None) -> dict:
     """Fetch prices for open positions, apply stop loss and take-profit, return the book."""
     s = s or settings.load()
-    cfg, d = s["paper"], load(path, s)
-    events = []
-    for p in open_pos(d):
+    cfg = s["paper"]
+    # prices are fetched outside the lock: the network is slow, the book is not
+    with LOCK:
+        mints = [p["mint"] for p in open_pos(load(path, s))]
+    fetched, errors = {}, {}
+    for m in mints:
         try:
-            price = prices[p["mint"]] if prices is not None else price_usd(p["mint"])
+            fetched[m] = prices[m] if prices is not None else price_usd(m)
         except Exception as e:
-            p["price_error"] = str(e); continue
-        if not price:
-            p["price_error"] = "no price"; continue
-        p.pop("price_error", None)
-        p["last"], p["marked"] = price, now()
-        chg = price / p["entry"] - 1
-        if chg <= -float(cfg["stop_loss_pct"]) / 100:
-            _sell(d, p, p["qty"], price, f"stop loss {chg * 100:+.0f}%")
-            events.append(f"{p['symbol']}: stop loss at {chg * 100:+.0f}%")
-        elif not p["tp_taken"] and chg >= float(cfg["take_profit_pct"]) / 100:
-            _sell(d, p, p["qty"] * float(cfg["take_profit_sell_frac"]), price, "take profit")
-            p["tp_taken"] = True
-            events.append(f"{p['symbol']}: took {float(cfg['take_profit_sell_frac']) * 100:.0f}% at {chg * 100:+.0f}%")
-    save(d, path)
-    return {**book(d, s), "events": events}
+            errors[m] = str(e)
+    events = []
+    with LOCK:
+        d = load(path, s)
+        for p in open_pos(d):
+            if p["mint"] in errors:
+                p["price_error"] = errors[p["mint"]]; continue
+            price = fetched.get(p["mint"])
+            if not price:
+                p["price_error"] = "no price"; continue
+            p.pop("price_error", None)
+            p["last"], p["marked"] = price, now()
+            chg = price / p["entry"] - 1
+            if chg <= -float(cfg["stop_loss_pct"]) / 100:
+                _sell(d, p, p["qty"], price, f"stop loss {chg * 100:+.0f}%")
+                events.append(f"{p['symbol']}: stop loss at {chg * 100:+.0f}%")
+            elif not p["tp_taken"] and chg >= float(cfg["take_profit_pct"]) / 100:
+                _sell(d, p, p["qty"] * float(cfg["take_profit_sell_frac"]), price, "take profit")
+                p["tp_taken"] = True
+                events.append(f"{p['symbol']}: took {float(cfg['take_profit_sell_frac']) * 100:.0f}% at {chg * 100:+.0f}%")
+        for e in events:
+            _event(d, e)
+        save(d, path)
+        return {**book(d, s), "events": events}
 
 
 def close(pos_id: str, reason: str = "leader sold", s: dict | None = None, path: str = PAPER_FILE,
           price: float | None = None) -> dict:
     s = s or settings.load()
-    d = load(path, s)
-    p = next((p for p in open_pos(d) if p["id"] == pos_id), None)
+    with LOCK:
+        p = next((p for p in open_pos(load(path, s)) if p["id"] == pos_id), None)
     if not p:
         raise ValueError("no open position with that id")
     if price is None:
@@ -138,9 +161,15 @@ def close(pos_id: str, reason: str = "leader sold", s: dict | None = None, path:
             raise ValueError(f"price failed: {e}")
     if not price:
         raise ValueError("no price on DexScreener; try again")
-    _sell(d, p, p["qty"], price, reason)
-    save(d, path)
-    return book(d, s)
+    with LOCK:
+        d = load(path, s)
+        p = next((p for p in open_pos(d) if p["id"] == pos_id), None)
+        if not p:
+            raise ValueError("position already closed")
+        _sell(d, p, p["qty"], price, reason)
+        _event(d, f"{p['symbol']}: {reason} at {price:g}, realized {p['realized']:+.2f}")
+        save(d, path)
+        return book(d, s)
 
 
 def book(d: dict, s: dict) -> dict:
@@ -153,6 +182,7 @@ def book(d: dict, s: dict) -> dict:
     equity = d["cash"] + sum(p["value"] for p in opens)
     start = float(s["paper"]["start_balance"])
     return {"cash": d["cash"], "equity": equity, "start": start, "pnl": equity - start,
+            "history": list(reversed(d.get("events", []))),
             "realized": sum(p["realized"] for p in d["positions"]),
             "open": opens, "closed": sorted(closed, key=lambda p: p["closed"], reverse=True),
             "wins": sum(1 for p in closed if p["realized"] > 0), "losses": sum(1 for p in closed if p["realized"] <= 0)}

@@ -71,9 +71,30 @@ class Paper(unittest.TestCase):
         with self.assertRaises(ValueError):
             paper.close(pid, s=S, path=self.path, price=1.0)
 
+    def test_events_are_recorded_for_the_closed_browser_case(self):
+        self.open("A", price=1.0)
+        paper.mark(S, self.path, prices={"A": 0.4})
+        hist = [e["text"] for e in paper.book(paper.load(self.path, S), S)["history"]]
+        self.assertEqual(len(hist), 2)
+        self.assertIn("stop loss", hist[0]); self.assertIn("paper fill", hist[1])   # newest first
+
+    def test_concurrent_marks_and_closes_keep_the_book_consistent(self):
+        import threading
+        for m in "ABCDE": self.open(m, price=1.0)
+        ids = [p["id"] for p in paper.open_pos(paper.load(self.path, S))]
+        def closer(i):
+            try: paper.close(i, s=S, path=self.path, price=1.0)
+            except ValueError: pass
+        ts = [threading.Thread(target=paper.mark, args=(S, self.path), kwargs={"prices": {m: 1.0 for m in "ABCDE"}}) for _ in range(5)]
+        ts += [threading.Thread(target=closer, args=(i,)) for i in ids]
+        for t in ts: t.start()
+        for t in ts: t.join()
+        b = paper.book(paper.load(self.path, S), S)
+        self.assertEqual(b["open"], []); self.assertEqual(len(b["closed"]), 5); self.assertAlmostEqual(b["cash"], 320)
+
     def test_reset(self):
         self.open("A"); paper.reset(self.path, S)
-        self.assertEqual(paper.load(self.path, S), {"cash": 320.0, "positions": []})
+        self.assertEqual(paper.load(self.path, S), {"cash": 320.0, "positions": [], "events": []})
 
 
 class Prices(unittest.TestCase):

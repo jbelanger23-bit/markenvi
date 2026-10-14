@@ -29,6 +29,7 @@ PAPER = {                   # paper trading. copyfomo's guards and exits, simula
     "stop_loss_pct": 50,        # close the whole position at -50%
     "take_profit_pct": 100,     # at +100% ...
     "take_profit_sell_frac": 0.5,   # ... sell this fraction once, the rest rides
+    "mark_interval_sec": 60,    # the server re-prices open positions this often, browser or not
 }
 
 MIN_CONFIDENCE = 0.65       # Claude says COPY below this -> treated as SKIP

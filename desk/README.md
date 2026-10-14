@@ -30,7 +30,7 @@ The server listens on 127.0.0.1 only. Nothing is reachable from outside your mac
 
 **Check a buy, every alert.** Paste the mint, pick the leader, run the funnel. You get COPY or SKIP, the reason, the main risk, where in the funnel it stopped, and the trimmed Rugcheck facts. A COPY means you place the flat ticket in copyfomo yourself. Stop loss and take profit live in copyfomo `/settings`.
 
-**Paper, for the test week.** Paper mode is on by default. Every COPY opens a simulated position for the flat ticket at the token's live price from DexScreener (free, no key, Solana only). copyfomo's guards run in code before the fill: max positions, no re-buy within 24h of a sell, first buy wins. The exit rules run on every refresh of the Paper tab: stop loss at -50% closes the position, +100% sells half once and the rest rides. They apply at that moment's price and do not fire while the app is closed. Mirror exits need you: when a leader sells, tap **leader sold**. The tab shows equity, cash, realized and unrealized P&L, open and closed positions, and refreshes every minute while open. Reset the book from the same tab. All of it is editable in Settings.
+**Paper, for the test week.** Paper mode is on by default. Every COPY opens a simulated position for the flat ticket at the token's live price from DexScreener (free, no key, Solana only). copyfomo's guards run in code before the fill: max positions, no re-buy within 24h of a sell, first buy wins. The server re-prices every open position on its own while it runs, browser open or not (every 60 seconds by default), and applies the exit rules at that moment's price: stop loss at -50% closes the position, +100% sells half once and the rest rides. So keep the black `start.bat` window open; stops only sleep when the server does. Mirror exits need you: when a leader sells, tap **leader sold**. The tab shows equity, cash, realized and unrealized P&L, open and closed positions, and a "what happened" feed of fills, stops, take-profits and closes, including the ones that fired while the browser was closed. Reset the book from the same tab. All of it is editable in Settings.
 
 **Log.** Every check with its reason, plus the week's counts. Under ten skips a week means the filter is too loose.
 
@@ -77,6 +77,7 @@ handle not in leaders   -> SKIP. Your alerts drifted, your leaders didn't.
 non-solana token        -> SKIP. Rugcheck here is Solana only. No report, no trade.
 no paper fill: no price -> DexScreener has no pair yet. The COPY is logged, no position.
 "?" in the last column  -> price fetch failed on this refresh. Hover for the error; try again.
+stops didn't fire       -> the server wasn't running. Stops run only while start.bat's window is open.
 port 8787 in use        -> change PORT in config.py.
 ```
 
