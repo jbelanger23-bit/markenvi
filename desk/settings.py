@@ -12,6 +12,7 @@ DEFAULTS = {
     "trader": dict(config.TRADER),
     "token": dict(config.TOKEN),
     "anthropic_api_key": "",     # empty -> ANTHROPIC_API_KEY from the environment
+    "paper": dict(config.PAPER),
 }
 
 
@@ -23,7 +24,7 @@ def load(path: str = config.SETTINGS_FILE) -> dict:
     except (OSError, ValueError):
         return s
     for k, v in over.items():
-        if k in ("trader", "token") and isinstance(v, dict):
+        if k in ("trader", "token", "paper") and isinstance(v, dict):
             s[k].update({kk: vv for kk, vv in v.items() if kk in s[k]})
         elif k in s:
             s[k] = v
@@ -41,8 +42,8 @@ def save(over: dict, path: str = config.SETTINGS_FILE) -> dict:
     for k, v in over.items():
         if k not in DEFAULTS:
             continue
-        if k in ("trader", "token") and isinstance(v, dict):
-            cur.setdefault(k, {}).update({kk: _num(vv) for kk, vv in v.items() if kk in DEFAULTS[k]})
+        if k in ("trader", "token", "paper") and isinstance(v, dict):
+            cur.setdefault(k, {}).update({kk: _coerce(vv) for kk, vv in v.items() if kk in DEFAULTS[k]})
         elif k in ("ticket_usd", "min_confidence"):
             cur[k] = _num(v)
         else:
@@ -50,6 +51,12 @@ def save(over: dict, path: str = config.SETTINGS_FILE) -> dict:
     with open(path, "w") as f:
         json.dump(cur, f, indent=2)
     return load(path)
+
+
+def _coerce(v):
+    if isinstance(v, bool) or v in ("true", "false", "on", "off"):
+        return v if isinstance(v, bool) else v in ("true", "on")
+    return _num(v)
 
 
 def _num(v):

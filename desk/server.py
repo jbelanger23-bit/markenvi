@@ -10,6 +10,7 @@ import settings
 from config import HOST, PORT, LEADERS_FILE, LOG_FILE, DATA_DIR
 import check as check_mod
 import pick_traders
+import paper
 
 UI = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "index.html")
 
@@ -65,6 +66,21 @@ def api_leaders(body):
         raise ValueError("leaders must be a list")
     pick_traders.save_leaders(leaders)
     return {"leaders": leaders}
+
+
+@route("GET", "/api/paper")
+def api_paper(_):
+    return paper.mark()
+
+
+@route("POST", "/api/paper/close")
+def api_paper_close(body):
+    return paper.close(str(body.get("id") or ""), body.get("reason") or "leader sold")
+
+
+@route("POST", "/api/paper/reset")
+def api_paper_reset(_):
+    return paper.book(paper.reset(), settings.load())
 
 
 @route("POST", "/api/settings")

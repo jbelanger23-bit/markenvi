@@ -65,6 +65,7 @@
   <nav>
     <button data-tab="check" class="on">Check a buy</button>
     <button data-tab="leaders">Leaders</button>
+    <button data-tab="paper">Paper</button>
     <button data-tab="log">Log</button>
     <button data-tab="settings">Settings</button>
   </nav>
@@ -109,6 +110,27 @@
   <div class="card" id="pickOut" style="display:none"></div>
 </section>
 
+<section id="tab-paper">
+  <div class="note" id="paperOff" style="display:none">Paper mode is off. Turn it on in Settings and every COPY will open a simulated position.</div>
+  <div class="stats" id="paperStats"></div>
+  <div class="card">
+    <div class="row" style="margin-bottom:10px;align-items:center">
+      <h2 style="margin:0;flex:1">Open positions</h2>
+      <span class="muted" id="paperMsg"></span>
+      <button class="ghost" id="paperRefresh">refresh prices</button>
+    </div>
+    <div style="overflow:auto"><table id="openTable"><thead><tr><th>opened</th><th>symbol</th><th>leader</th><th>entry</th><th>last</th><th>change</th><th>value</th><th>p&amp;l</th><th>tp</th><th></th></tr></thead><tbody></tbody></table></div>
+    <p class="muted" style="margin:10px 0 0">Stop loss and take profit are applied on every refresh, at that moment's price. They don't fire while the app is closed. Mirror exits need you: when a leader sells, tap <b>leader sold</b>.</p>
+  </div>
+  <div class="card">
+    <div class="row" style="margin-bottom:10px;align-items:center">
+      <h2 style="margin:0;flex:1">Closed</h2>
+      <button class="ghost danger" id="paperReset">reset paper book</button>
+    </div>
+    <div style="overflow:auto"><table id="closedTable"><thead><tr><th>opened</th><th>closed</th><th>symbol</th><th>leader</th><th>entry</th><th>exit</th><th>realized</th><th>reason</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</section>
+
 <section id="tab-log">
   <div class="stats" id="logStats"></div>
   <div class="card">
@@ -135,6 +157,18 @@
           <label>effort<select name="effort"><option>low</option><option>medium</option><option>high</option></select></label>
           <label>min confidence for COPY<input name="min_confidence" type="number" step="0.01" min="0" max="1"></label>
           <label>ticket USD (display only)<input name="ticket_usd" type="number" step="1"></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Paper trading</h2>
+        <div class="row">
+          <label>paper mode<select name="paper.enabled"><option value="true">on</option><option value="false">off</option></select></label>
+          <label>start balance USD<input name="paper.start_balance" type="number" step="1"></label>
+          <label>max positions<input name="paper.max_positions" type="number" step="1"></label>
+          <label>no re-buy hours<input name="paper.no_rebuy_hours" type="number" step="1"></label>
+          <label>stop loss %<input name="paper.stop_loss_pct" type="number" step="1"></label>
+          <label>take profit %<input name="paper.take_profit_pct" type="number" step="1"></label>
+          <label>sell fraction at TP<input name="paper.take_profit_sell_frac" type="number" step="0.05" min="0" max="1"></label>
         </div>
       </div>
       <div class="card">
@@ -175,11 +209,11 @@ async function api(path, body) {
 }
 
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
-function showTab(t) {
+let showTab = function (t) {
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
   document.querySelectorAll("main section").forEach(s => s.classList.toggle("on", s.id === "tab-" + t));
   try { localStorage.setItem("desk.tab", t); } catch (e) {}
-}
+};
 
 async function refresh() {
   S = await api("/api/state");
@@ -229,6 +263,7 @@ function renderVerdict(v) {
     <div><b>why:</b> ${esc(v.reason)}</div>
     ${v.main_risk ? `<div><b>main risk:</b> ${esc(v.main_risk)}</div>` : ""}
     ${v.verdict === "COPY" ? `<div class="note" style="margin-top:12px">COPY. Place a flat $${esc(S.settings.ticket_usd)} ticket on ${esc(v.symbol)} in copyfomo. Stop loss and take profit live in copyfomo /settings.</div>` : ""}
+    ${v.paper ? `<div class="note" style="margin-top:8px;border-color:${v.paper.filled ? "var(--green)" : "var(--red)"}">${v.paper.filled ? `paper fill: ${esc(v.paper.position.qty.toPrecision(6))} ${esc(v.symbol)} at $${esc(fmt(v.paper.position.entry))}` : `no paper fill: ${esc(v.paper.reason)}`}</div>` : ""}
     ${v.token ? `<div class="facts">${fact("risk score", t.risk_score)}${fact("top-10 %", t.top10_pct)}${fact("LP locked %", t.lp_locked_pct)}${fact("insider nets", t.insider_nets)}${fact("mint authority", t.mint_authority)}${fact("freeze authority", t.freeze_authority)}${fact("danger", t.danger)}${fact("warn", t.warn)}</div>` : ""}`;
   $("#copyMint").onclick = e => navigator.clipboard.writeText(v.mint).then(() => { e.target.textContent = "copied"; });
 }
@@ -268,6 +303,34 @@ $("#pickBtn").onclick = async () => {
   btn.disabled = false; btn.textContent = "Code cut + Claude rank";
 };
 
+const fmt = n => n == null ? "" : Math.abs(n) >= 100 ? n.toFixed(2) : Math.abs(n) >= 1 ? n.toFixed(4) : n.toPrecision(4);
+const usd = n => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+const pnlCls = n => n > 0 ? "COPY" : n < 0 ? "SKIP" : "";
+let paperTimer = null;
+async function loadPaper() {
+  $("#paperMsg").textContent = "fetching prices…";
+  try {
+    const b = await api("/api/paper"); renderPaper(b);
+    $("#paperMsg").textContent = (b.events.length ? b.events.join(" · ") + " · " : "") + "updated " + new Date().toLocaleTimeString();
+  } catch (err) { $("#paperMsg").textContent = err.message; }
+}
+function renderPaper(b) {
+  $("#paperOff").style.display = S.settings.paper.enabled ? "none" : "";
+  $("#paperStats").innerHTML = [["equity", usd(b.equity)], ["p&l", usd(b.pnl), pnlCls(b.pnl)], ["cash", usd(b.cash)], ["realized", usd(b.realized), pnlCls(b.realized)], ["open", b.open.length], ["w / l", `${b.wins} / ${b.losses}`]]
+    .map(([k, v, c]) => `<div class="stat"><b class="${c || ""}">${v}</b><span>${k}</span></div>`).join("");
+  $("#openTable tbody").innerHTML = b.open.map(p => `<tr><td class="mono">${esc(p.opened)}</td><td><b>${esc(p.symbol || "?")}</b></td><td class="mono">${esc(p.leader)}</td><td class="mono">${fmt(p.entry)}</td><td class="mono">${p.price_error ? `<span class="SKIP" title="${esc(p.price_error)}">?</span>` : fmt(p.last)}</td><td class="mono ${pnlCls(p.change_pct)}">${p.change_pct.toFixed(1)}%</td><td class="mono">${usd(p.value)}</td><td class="mono ${pnlCls(p.unrealized)}">${usd(p.unrealized)}</td><td class="muted">${p.tp_taken ? "half taken" : ""}</td><td><button class="ghost" data-close="${p.id}">leader sold</button></td></tr>`).join("") || `<tr><td colspan="10" class="muted">No open positions. A COPY on the Check tab opens one.</td></tr>`;
+  $("#closedTable tbody").innerHTML = b.closed.map(p => `<tr><td class="mono">${esc(p.opened)}</td><td class="mono">${esc(p.closed)}</td><td><b>${esc(p.symbol || "?")}</b></td><td class="mono">${esc(p.leader)}</td><td class="mono">${fmt(p.entry)}</td><td class="mono">${fmt(p.exit)}</td><td class="mono ${pnlCls(p.realized)}">${usd(p.realized)}</td><td class="muted">${esc(p.exit_reason)}</td></tr>`).join("") || `<tr><td colspan="8" class="muted">Nothing closed yet.</td></tr>`;
+  document.querySelectorAll("[data-close]").forEach(btn => btn.onclick = async () => {
+    btn.disabled = true;
+    try { renderPaper(await api("/api/paper/close", { id: btn.dataset.close })); } catch (err) { $("#paperMsg").textContent = err.message; btn.disabled = false; }
+  });
+}
+$("#paperRefresh").onclick = loadPaper;
+$("#paperReset").onclick = async () => { if (confirm("Reset the paper book? Open and closed positions are wiped.")) renderPaper(await api("/api/paper/reset", {})); };
+const _showTab = showTab;
+showTab = t => { _showTab(t); clearInterval(paperTimer); paperTimer = null; if (t === "paper") { loadPaper(); paperTimer = setInterval(loadPaper, 60000); } };
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+
 $("#logFilter").onchange = renderLog;
 function renderLog() {
   const f = $("#logFilter").value, rows = S.log.filter(r => !f || r.verdict === f);
@@ -283,12 +346,12 @@ function renderSettings() {
   const f = $("#settingsForm"), s = S.settings;
   for (const el of f.elements) {
     if (!el.name || el.name === "anthropic_api_key") continue;
-    const [a, b] = el.name.split("."); el.value = b ? s[a][b] : s[a];
+    const [a, b] = el.name.split("."); const v = b ? s[a][b] : s[a]; el.value = typeof v === "boolean" ? String(v) : v;
   }
 }
 $("#settingsForm").onsubmit = async e => {
   e.preventDefault(); $("#settingsErr").textContent = ""; $("#settingsMsg").textContent = "";
-  const body = { trader: {}, token: {} };
+  const body = { trader: {}, token: {}, paper: {} };
   for (const el of e.target.elements) {
     if (!el.name) continue;
     if (el.name === "anthropic_api_key") { if (el.value.trim()) body.anthropic_api_key = el.value.trim(); continue; }

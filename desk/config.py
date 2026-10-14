@@ -21,6 +21,16 @@ TOKEN = {                   # pass 4, facts from rugcheck, no model
     "max_insider_nets":  0,
 }
 
+PAPER = {                   # paper trading. copyfomo's guards and exits, simulated at live prices
+    "enabled": True,            # a COPY opens a paper position instead of just telling you
+    "start_balance": 320,       # the guide's deposit
+    "max_positions": 5,
+    "no_rebuy_hours": 24,
+    "stop_loss_pct": 50,        # close the whole position at -50%
+    "take_profit_pct": 100,     # at +100% ...
+    "take_profit_sell_frac": 0.5,   # ... sell this fraction once, the rest rides
+}
+
 MIN_CONFIDENCE = 0.65       # Claude says COPY below this -> treated as SKIP
 
 # Local state. Everything under DATA_DIR is ignored by git.
