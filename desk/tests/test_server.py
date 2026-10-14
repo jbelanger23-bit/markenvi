@@ -89,6 +89,17 @@ class Server(unittest.TestCase):
         code, b = self.call("/api/paper/reset", {})
         self.assertEqual(code, 200); self.assertEqual(b["closed"], []); self.assertAlmostEqual(b["cash"], 320)
 
+    def test_background_marker_pass(self):
+        self.call("/api/paper/reset", {})
+        self.assertEqual(self.server.mark_once(), [])          # nothing open: no network, no events
+        with mock.patch.object(self.server.paper, "price_usd", return_value=1.0):
+            self.server.paper.try_open("MINT2", "SYM", "alice")
+        with mock.patch.object(self.server.paper, "price_usd", return_value=0.3):
+            events = self.server.mark_once()
+        self.assertEqual(len(events), 1); self.assertIn("stop loss", events[0])
+        self.assertEqual(self.call("/api/paper")[1]["open"], [])
+        self.call("/api/paper/reset", {})
+
     def test_unknown_route_is_json_404(self):
         self.assertEqual(self.call("/api/nope")[0], 404)
 

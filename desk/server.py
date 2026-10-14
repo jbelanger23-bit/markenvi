@@ -2,7 +2,7 @@
 # The app. A local HTTP server with no framework: serves ui/index.html and a handful of
 # JSON endpoints that call the funnel. Binds to 127.0.0.1 only; nothing is reachable
 # from outside your machine.  python server.py  [--no-browser]
-import json, os, sys, threading, webbrowser
+import json, os, sys, threading, time, webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
@@ -135,8 +135,37 @@ class Handler(BaseHTTPRequestHandler):
             self._json(500, {"error": f"{type(e).__name__}: {e}"})
 
 
+def mark_once() -> list[str]:
+    """One pass of the background marker. Skips the network when there is nothing open."""
+    s = settings.load()
+    if not s["paper"]["enabled"] or not paper.open_pos(paper.load(s=s)):
+        return []
+    events = paper.mark(s)["events"]
+    for e in events:
+        print(f"[paper] {time.strftime('%H:%M')} {e}")
+    return events
+
+
+def marker_loop(stop: threading.Event):
+    """Runs while the server runs, so stops and take-profits fire with the browser closed."""
+    while not stop.is_set():
+        try:
+            interval = float(settings.load()["paper"].get("mark_interval_sec") or 60)
+        except Exception:
+            interval = 60
+        stop.wait(max(10, interval))
+        if stop.is_set():
+            break
+        try:
+            mark_once()
+        except Exception as e:                      # never let one bad pass kill the loop
+            print(f"[paper] mark failed: {e}", file=sys.stderr)
+
+
 def serve(host=HOST, port=PORT, open_browser=True):
     os.makedirs(DATA_DIR, exist_ok=True)
+    stop = threading.Event()
+    threading.Thread(target=marker_loop, args=(stop,), daemon=True, name="paper-marker").start()
     httpd = ThreadingHTTPServer((host, port), Handler)
     url = f"http://{host}:{port}/"
     print(f"desk running at {url}   (ctrl+c to stop)")
@@ -147,6 +176,7 @@ def serve(host=HOST, port=PORT, open_browser=True):
     except KeyboardInterrupt:
         pass
     finally:
+        stop.set()
         httpd.server_close()
 
 

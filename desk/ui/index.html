@@ -120,7 +120,11 @@
       <button class="ghost" id="paperRefresh">refresh prices</button>
     </div>
     <div style="overflow:auto"><table id="openTable"><thead><tr><th>opened</th><th>symbol</th><th>leader</th><th>entry</th><th>last</th><th>change</th><th>value</th><th>p&amp;l</th><th>tp</th><th></th></tr></thead><tbody></tbody></table></div>
-    <p class="muted" style="margin:10px 0 0">Stop loss and take profit are applied on every refresh, at that moment's price. They don't fire while the app is closed. Mirror exits need you: when a leader sells, tap <b>leader sold</b>.</p>
+    <p class="muted" style="margin:10px 0 0">The server re-prices open positions on its own while it runs, browser open or not, and applies stop loss and take profit at that moment's price. Keep the black <code>start.bat</code> window open. Mirror exits need you: when a leader sells, tap <b>leader sold</b>.</p>
+  </div>
+  <div class="card">
+    <h2>What happened</h2>
+    <div id="paperHistory" class="muted"></div>
   </div>
   <div class="card">
     <div class="row" style="margin-bottom:10px;align-items:center">
@@ -169,6 +173,7 @@
           <label>stop loss %<input name="paper.stop_loss_pct" type="number" step="1"></label>
           <label>take profit %<input name="paper.take_profit_pct" type="number" step="1"></label>
           <label>sell fraction at TP<input name="paper.take_profit_sell_frac" type="number" step="0.05" min="0" max="1"></label>
+          <label>re-price every (sec)<input name="paper.mark_interval_sec" type="number" step="10" min="10"></label>
         </div>
       </div>
       <div class="card">
@@ -320,6 +325,7 @@ function renderPaper(b) {
     .map(([k, v, c]) => `<div class="stat"><b class="${c || ""}">${v}</b><span>${k}</span></div>`).join("");
   $("#openTable tbody").innerHTML = b.open.map(p => `<tr><td class="mono">${esc(p.opened)}</td><td><b>${esc(p.symbol || "?")}</b></td><td class="mono">${esc(p.leader)}</td><td class="mono">${fmt(p.entry)}</td><td class="mono">${p.price_error ? `<span class="SKIP" title="${esc(p.price_error)}">?</span>` : fmt(p.last)}</td><td class="mono ${pnlCls(p.change_pct)}">${p.change_pct.toFixed(1)}%</td><td class="mono">${usd(p.value)}</td><td class="mono ${pnlCls(p.unrealized)}">${usd(p.unrealized)}</td><td class="muted">${p.tp_taken ? "half taken" : ""}</td><td><button class="ghost" data-close="${p.id}">leader sold</button></td></tr>`).join("") || `<tr><td colspan="10" class="muted">No open positions. A COPY on the Check tab opens one.</td></tr>`;
   $("#closedTable tbody").innerHTML = b.closed.map(p => `<tr><td class="mono">${esc(p.opened)}</td><td class="mono">${esc(p.closed)}</td><td><b>${esc(p.symbol || "?")}</b></td><td class="mono">${esc(p.leader)}</td><td class="mono">${fmt(p.entry)}</td><td class="mono">${fmt(p.exit)}</td><td class="mono ${pnlCls(p.realized)}">${usd(p.realized)}</td><td class="muted">${esc(p.exit_reason)}</td></tr>`).join("") || `<tr><td colspan="8" class="muted">Nothing closed yet.</td></tr>`;
+  $("#paperHistory").innerHTML = (b.history || []).map(e => `<div><span class="mono" style="font-family:var(--mono);font-size:12px">${esc(e.time)}</span> &nbsp; ${esc(e.text)}</div>`).join("") || "Nothing yet. Fills, stops, take-profits and manual closes land here, including the ones that fire while the browser is closed.";
   document.querySelectorAll("[data-close]").forEach(btn => btn.onclick = async () => {
     btn.disabled = true;
     try { renderPaper(await api("/api/paper/close", { id: btn.dataset.close })); } catch (err) { $("#paperMsg").textContent = err.message; btn.disabled = false; }
