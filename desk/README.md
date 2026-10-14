@@ -30,6 +30,8 @@ The server listens on 127.0.0.1 only. Nothing is reachable from outside your mac
 
 **Check a buy, every alert.** Paste the mint, pick the leader, run the funnel. You get COPY or SKIP, the reason, the main risk, where in the funnel it stopped, and the trimmed Rugcheck facts. A COPY means you place the flat ticket in copyfomo yourself. Stop loss and take profit live in copyfomo `/settings`.
 
+**Paper, for the test week.** Paper mode is on by default. Every COPY opens a simulated position for the flat ticket at the token's live price from DexScreener (free, no key, Solana only). copyfomo's guards run in code before the fill: max positions, no re-buy within 24h of a sell, first buy wins. The exit rules run on every refresh of the Paper tab: stop loss at -50% closes the position, +100% sells half once and the rest rides. They apply at that moment's price and do not fire while the app is closed. Mirror exits need you: when a leader sells, tap **leader sold**. The tab shows equity, cash, realized and unrealized P&L, open and closed positions, and refreshes every minute while open. Reset the book from the same tab. All of it is editable in Settings.
+
 **Log.** Every check with its reason, plus the week's counts. Under ten skips a week means the filter is too loose.
 
 **Settings.** Every threshold, the model, the judge's effort, the confidence floor, and your key. Stored in `desk/data/settings.json`, which git ignores.
@@ -46,7 +48,9 @@ The server listens on 127.0.0.1 only. Nothing is reachable from outside your mac
 | `prompts.py` | TRADER DESK and TOKEN DESK prompts with the schema each must answer in |
 | `rugcheck.py` | fetch one Rugcheck report, trim it, apply the fact cut |
 | `pick_traders.py` | code cut then Claude rank, writes `data/leaders.json` |
-| `check.py` | the funnel for one buy, appends to `data/checks.csv` |
+| `check.py` | the funnel for one buy, appends to `data/checks.csv`, opens a paper position on COPY |
+| `paper.py` | paper book in `data/paper.json`: guards, fills, stop loss, take profit, mirror close |
+| `prices.py` | one price from DexScreener, most liquid Solana pair wins |
 
 The CLI still works from the desk folder: `python check.py <mint> <handle>` and `python pick_traders.py traders.json`.
 
@@ -71,6 +75,8 @@ rugcheck 404 / empty    -> token too fresh to index. SKIP. Fresh is not a pass.
 rugcheck timeout        -> SKIP this one. A missing report is missing, not clean.
 handle not in leaders   -> SKIP. Your alerts drifted, your leaders didn't.
 non-solana token        -> SKIP. Rugcheck here is Solana only. No report, no trade.
+no paper fill: no price -> DexScreener has no pair yet. The COPY is logged, no position.
+"?" in the last column  -> price fetch failed on this refresh. Hover for the error; try again.
 port 8787 in use        -> change PORT in config.py.
 ```
 

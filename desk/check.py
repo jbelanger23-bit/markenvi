@@ -11,6 +11,7 @@ from prompts import TOKEN_PROMPT, TOKEN_SCHEMA
 from rugcheck import report, fact_kill
 from judge import ask
 from pick_traders import load_leaders
+import paper
 
 FIELDS = ["time", "leader", "mint", "symbol", "verdict", "confidence", "reason", "stage"]
 
@@ -64,10 +65,13 @@ def check(mint: str, handle: str, leaders_file: str = LEADERS_FILE, s: dict | No
 
 
 def check_and_log(mint: str, handle: str, leaders_file: str = LEADERS_FILE,
-                  log_file: str = LOG_FILE, s: dict | None = None) -> dict:
+                  log_file: str = LOG_FILE, s: dict | None = None, **paper_kw) -> dict:
+    s = s or settings.load()
     v = check(mint, handle, leaders_file, s)
     v["time"] = time.strftime("%Y-%m-%d %H:%M")
     v["leader"], v["mint"] = handle, mint
+    if v["verdict"] == "COPY" and s["paper"]["enabled"]:
+        v["paper"] = paper.try_open(mint, v.get("symbol"), handle, s, **paper_kw)
     log(v, log_file)
     return v
 

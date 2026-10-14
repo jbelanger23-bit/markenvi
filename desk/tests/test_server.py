@@ -74,6 +74,21 @@ class Server(unittest.TestCase):
         code, out = self.call("/api/leaders", {"leaders": []})
         self.assertEqual(code, 200); self.assertEqual(self.call("/api/state")[1]["leaders"], [])
 
+    def test_paper_endpoints_and_boolean_settings(self):
+        code, s = self.call("/api/settings", {"paper": {"enabled": "false", "max_positions": "3"}})
+        self.assertEqual(code, 200); self.assertIs(s["paper"]["enabled"], False); self.assertEqual(s["paper"]["max_positions"], 3)
+        self.call("/api/settings", {"paper": {"enabled": "true"}})
+        with mock.patch.object(self.server.paper, "price_usd", return_value=2.0):
+            self.server.paper.try_open("MINT", "SYM", "alice")
+            code, b = self.call("/api/paper")
+        self.assertEqual(code, 200); self.assertEqual(len(b["open"]), 1); self.assertAlmostEqual(b["equity"], 320)
+        with mock.patch.object(self.server.paper, "price_usd", return_value=3.0):
+            code, b = self.call("/api/paper/close", {"id": b["open"][0]["id"]})
+        self.assertEqual(code, 200); self.assertAlmostEqual(b["realized"], 25); self.assertEqual(b["open"], [])
+        self.assertEqual(self.call("/api/paper/close", {"id": "nope"})[0], 400)
+        code, b = self.call("/api/paper/reset", {})
+        self.assertEqual(code, 200); self.assertEqual(b["closed"], []); self.assertAlmostEqual(b["cash"], 320)
+
     def test_unknown_route_is_json_404(self):
         self.assertEqual(self.call("/api/nope")[0], 404)
 
