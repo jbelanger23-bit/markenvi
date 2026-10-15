@@ -2,12 +2,12 @@
 # The app. A local HTTP server with no framework: serves ui/index.html and a handful of
 # JSON endpoints that call the funnel. Binds to 127.0.0.1 only; nothing is reachable
 # from outside your machine.  python server.py  [--no-browser]
-import json, os, sys, threading, time, webbrowser
+import base64, hmac, json, os, sys, threading, time, webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
 import settings
-from config import HOST, PORT, LEADERS_FILE, LOG_FILE, DATA_DIR
+from config import HOST, PORT, PASSWORD, PUBLIC, LEADERS_FILE, LOG_FILE, DATA_DIR
 import check as check_mod
 import pick_traders
 import paper
@@ -29,6 +29,11 @@ def route(method, path):
         ROUTES[(method, path)] = fn
         return fn
     return deco
+
+
+@route("GET", "/healthz")
+def healthz(_):
+    return {"ok": True}
 
 
 @route("GET", "/api/state")
@@ -101,8 +106,30 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def _authed(self, path) -> bool:
+        """HTTP Basic auth when DESK_PASSWORD is set. The health check stays open for the platform."""
+        if not PASSWORD or path == "/healthz":
+            return True
+        hdr = self.headers.get("Authorization") or ""
+        try:
+            user, _, pw = base64.b64decode(hdr.split(" ", 1)[1]).decode().partition(":")
+        except Exception:
+            user, pw = "", ""
+        if hdr.startswith("Basic ") and hmac.compare_digest(pw, PASSWORD):
+            return True
+        self.send_response(401)
+        self.send_header("WWW-Authenticate", 'Basic realm="desk"')
+        self.send_header("Content-Type", "application/json")
+        body = b'{"error": "password required"}'
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+        return False
+
     def do_GET(self):
         path = urlparse(self.path).path
+        if not self._authed(path):
+            return
         if path in ("/", "/index.html"):
             with open(UI, "rb") as f:
                 data = f.read()
@@ -116,6 +143,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urlparse(self.path).path
+        if not self._authed(path):
+            return
         n = int(self.headers.get("Content-Length") or 0)
         try:
             body = json.loads(self.rfile.read(n) or b"{}")
@@ -163,13 +192,15 @@ def marker_loop(stop: threading.Event):
 
 
 def serve(host=HOST, port=PORT, open_browser=True):
+    if PUBLIC and not PASSWORD:
+        raise SystemExit("refusing to listen on a public address without DESK_PASSWORD set")
     os.makedirs(DATA_DIR, exist_ok=True)
     stop = threading.Event()
     threading.Thread(target=marker_loop, args=(stop,), daemon=True, name="paper-marker").start()
     httpd = ThreadingHTTPServer((host, port), Handler)
     url = f"http://{host}:{port}/"
-    print(f"desk running at {url}   (ctrl+c to stop)")
-    if open_browser:
+    print(f"desk running at {url}   (ctrl+c to stop)" + ("   [password on]" if PASSWORD else ""))
+    if open_browser and not PUBLIC:
         threading.Timer(0.6, webbrowser.open, [url]).start()
     try:
         httpd.serve_forever()

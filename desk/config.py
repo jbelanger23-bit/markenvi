@@ -40,4 +40,9 @@ LEADERS_FILE = os.path.join(DATA_DIR, "leaders.json")
 LOG_FILE = os.path.join(DATA_DIR, "checks.csv")
 SETTINGS_FILE = os.path.join(DATA_DIR, "settings.json")
 
-HOST, PORT = "127.0.0.1", 8787
+# Where the server listens. Local by default. On a host like Railway set DESK_HOST=0.0.0.0,
+# let the platform set PORT, and set DESK_PASSWORD: a public desk without a password refuses to start.
+HOST = os.environ.get("DESK_HOST") or "127.0.0.1"
+PORT = int(os.environ.get("PORT") or 8787)
+PASSWORD = os.environ.get("DESK_PASSWORD") or ""
+PUBLIC = HOST not in ("127.0.0.1", "localhost")
