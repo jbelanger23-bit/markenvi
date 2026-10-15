@@ -100,6 +100,27 @@ class Server(unittest.TestCase):
         self.assertEqual(self.call("/api/paper")[1]["open"], [])
         self.call("/api/paper/reset", {})
 
+    def test_password_gate_when_set(self):
+        import base64
+        with mock.patch.object(self.server, "PASSWORD", "hunter2"):
+            self.assertEqual(self.call("/api/state")[0], 401)
+            self.assertEqual(self.call("/api/check", {"mint": "M", "handle": "x"})[0], 401)
+            self.assertEqual(self.call("/healthz")[0], 200)          # platform health check stays open
+            req = urllib.request.Request(f"http://127.0.0.1:{self.port}/api/state",
+                                         headers={"Authorization": "Basic " + base64.b64encode(b"desk:hunter2").decode()})
+            with urllib.request.urlopen(req) as r:
+                self.assertEqual(r.status, 200)
+            bad = urllib.request.Request(f"http://127.0.0.1:{self.port}/api/state",
+                                         headers={"Authorization": "Basic " + base64.b64encode(b"desk:nope").decode()})
+            with self.assertRaises(urllib.error.HTTPError) as cm:
+                urllib.request.urlopen(bad)
+            self.assertEqual(cm.exception.code, 401)
+
+    def test_public_bind_without_password_refuses_to_start(self):
+        with mock.patch.object(self.server, "PUBLIC", True), mock.patch.object(self.server, "PASSWORD", ""):
+            with self.assertRaises(SystemExit):
+                self.server.serve(open_browser=False)
+
     def test_unknown_route_is_json_404(self):
         self.assertEqual(self.call("/api/nope")[0], 404)
 
